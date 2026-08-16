@@ -1,0 +1,603 @@
+/* ==========================================================================
+   RadiNova AI — Swiss Style Design System
+   International Typographic Style: 12-Column Grid, Inter Font, Monochromatic
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Monochromatic Base Palette */
+  --bg-main: #FAFAFA;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F4F4F5;
+  --bg-dark: #0A0A0A;
+  
+  --text-primary: #0A0A0A;
+  --text-secondary: #52525B;
+  --text-muted: #71717A;
+  --text-inverse: #FFFFFF;
+
+  --border-strong: #0A0A0A;
+  --border-medium: #D4D4D8;
+  --border-light: #E4E4E7;
+  
+  /* Single Deliberate Accent */
+  --accent: #E11D48; /* Swiss Red */
+  --accent-light: #FFE4E6;
+  --accent-blue: #0284C7;
+
+  /* Status Colors */
+  --status-positive-bg: #ECFDF5;
+  --status-positive-text: #065F46;
+  --status-positive-border: #10B981;
+
+  --status-alert-bg: #FEF2F2;
+  --status-alert-text: #991B1B;
+  --status-alert-border: #EF4444;
+
+  --grid-gap: 24px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Swiss 12-Column Layout Grid
+   ========================================================================== */
+.app-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px 48px 24px;
+}
+
+.swiss-grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gap);
+}
+
+.col-span-12 { grid-column: span 12; }
+.col-span-8  { grid-column: span 8; }
+.col-span-7  { grid-column: span 7; }
+.col-span-6  { grid-column: span 6; }
+.col-span-5  { grid-column: span 5; }
+.col-span-4  { grid-column: span 4; }
+.col-span-3  { grid-column: span 3; }
+
+@media (max-width: 1024px) {
+  .col-span-8, .col-span-7, .col-span-6, .col-span-5, .col-span-4, .col-span-3 {
+    grid-column: span 12;
+  }
+}
+
+/* ==========================================================================
+   Mandatory Top Disclaimer Banner
+   ========================================================================== */
+.disclaimer-banner {
+  background-color: var(--status-alert-bg);
+  border-bottom: 2px solid var(--accent);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--status-alert-text);
+}
+
+.disclaimer-badge {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  padding: 2px 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  display: inline-block;
+  margin-right: 12px;
+}
+
+/* ==========================================================================
+   Header & Control Panel Branding
+   ========================================================================== */
+.app-header {
+  border-bottom: 2px solid var(--border-strong);
+  padding: 24px 0 18px 0;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.brand-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Swiss Tab Navigation (6 Modalities)
+   ========================================================================== */
+.tab-nav {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-bottom: 2px solid var(--border-strong);
+  margin-bottom: 32px;
+  background: var(--bg-card);
+}
+
+@media (max-width: 900px) {
+  .tab-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border-light);
+  padding: 16px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.tab-btn:last-child {
+  border-right: none;
+}
+
+.tab-btn:hover {
+  background-color: var(--bg-subtle);
+}
+
+.tab-btn.active {
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
+}
+
+.tab-num {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.tab-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.tab-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 4px;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+  border: 1px solid currentColor;
+}
+
+.tab-btn.active .tab-tag {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================================================
+   Swiss Upload Dropzone
+   ========================================================================== */
+.dropzone {
+  border: 2px dashed var(--border-medium);
+  background: var(--bg-card);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dropzone:hover, .dropzone.drag-active {
+  border-color: var(--border-strong);
+  background: var(--bg-subtle);
+}
+
+.dropzone-icon {
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.dropzone-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.dropzone-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.btn-swiss {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border: 2px solid var(--text-primary);
+  padding: 10px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-swiss:hover {
+  background: #27272A;
+  border-color: #27272A;
+}
+
+.btn-swiss-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--text-primary);
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-swiss-outline:hover {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+}
+
+.sample-buttons {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sample-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sample-btn:hover {
+  background: var(--border-medium);
+}
+
+/* ==========================================================================
+   Results & Cards (Swiss Clean Layout)
+   ========================================================================== */
+.card-swiss {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.card-swiss-header {
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Big Swiss Confidence Display */
+.metric-display {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metric-numeral {
+  font-size: 54px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.metric-label-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-class {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.metric-class.positive { color: var(--accent); }
+.metric-class.negative { color: var(--text-primary); }
+
+.metric-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Image / Grad-CAM Viewer Component
+   ========================================================================== */
+.viewer-container {
+  border: 1px solid var(--border-medium);
+  background: #000000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+}
+
+.viewer-img {
+  width: 100%;
+  max-height: 440px;
+  object-fit: contain;
+  display: block;
+}
+
+.viewer-controls {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  border-top: none;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.toggle-btn {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border-color: var(--text-primary);
+}
+
+.opacity-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Clinical Guidance Rules Box
+   ========================================================================== */
+.guidance-box {
+  background: var(--bg-card);
+  border-left: 4px solid var(--text-primary);
+  padding: 20px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.guidance-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.guidance-summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.guidance-list {
+  list-style: none;
+  margin-bottom: 12px;
+}
+
+.guidance-list li {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.guidance-list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Chat Assistant Drawer / Floating Panel
+   ========================================================================== */
+.chat-drawer {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 380px;
+  max-height: 580px;
+  background: var(--bg-card);
+  border: 2px solid var(--text-primary);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.chat-header {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  max-height: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-main);
+}
+
+.chat-bubble {
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 88%;
+}
+
+.chat-bubble.user {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  align-self: flex-end;
+}
+
+.chat-bubble.assistant {
+  background: var(--bg-card);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary);
+  align-self: flex-start;
+}
+
+.chat-input-row {
+  display: flex;
+  border-top: 1px solid var(--border-medium);
+  background: var(--bg-card);
+}
+
+.chat-input {
+  flex: 1;
+  border: none;
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  outline: none;
+}
+
+.chat-send-btn {
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border: none;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.chat-floating-trigger {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border: none;
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 999;
+}
