@@ -1,0 +1,2 @@
+# Place trained model weights (.pth) here.
+# e.g., chest_densenet121.pth, limb_densenet121.pth

@@ -1,0 +1,142 @@
+{
+  "system_disclaimer": "For educational/research purposes only — not a substitute for professional medical diagnosis.",
+  "modalities": {
+    "chest_xray": {
+      "classes": ["NORMAL", "PNEUMONIA"],
+      "confidence_bands": [
+        {
+          "min_confidence": 0.90,
+          "max_confidence": 1.00,
+          "class": "PNEUMONIA",
+          "severity": "HIGH_CONFIDENCE_FINDING",
+          "clinical_summary": "Marked radiographic consolidation and pulmonary opacity consistent with pneumonia pattern.",
+          "differential_considerations": [
+            "Bacterial lobar pneumonia (e.g., Streptococcus pneumoniae)",
+            "Atypical / Viral bronchopneumonia",
+            "Pulmonary edema / alveolar infiltrate"
+          ],
+          "recommended_followup": [
+            "Correlate with clinical presentation (fever, purulent sputum, auscultatory crackles)",
+            "Evaluate inflammatory markers (Complete Blood Count, CRP, procalcitonin)",
+            "Consider microbiological sputum cultures and blood cultures prior to targeted antimicrobial therapy",
+            "Follow-up posteroanterior (PA) chest radiograph in 4-6 weeks to assess resolution"
+          ]
+        },
+        {
+          "min_confidence": 0.70,
+          "max_confidence": 0.89,
+          "class": "PNEUMONIA",
+          "severity": "MODERATE_CONFIDENCE_FINDING",
+          "clinical_summary": "Focal infiltrative haziness or bronchovascular perihilar thickening suggestive of developing pneumonia.",
+          "differential_considerations": [
+            "Early bacterial or viral pneumonia",
+            "Atelectasis (subsegmental volume loss)",
+            "Bronchial inflammation / acute bronchitis"
+          ],
+          "recommended_followup": [
+            "Clinical evaluation including pulse oximetry and auscultation",
+            "Serial imaging in 24-48 hours if symptoms persist or deteriorate",
+            "Consider high-resolution CT thorax if diagnostic uncertainty remains"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 0.69,
+          "class": "PNEUMONIA",
+          "severity": "LOW_CONFIDENCE_INDETERMINATE",
+          "clinical_summary": "Equivocal opacification with borderline feature activation.",
+          "differential_considerations": [
+            "Minor atelectatic changes",
+            "Under-inspiration or radiographic positioning artifact",
+            "Early viral interstitial process"
+          ],
+          "recommended_followup": [
+            "Review previous radiographic studies for comparison",
+            "Repeat inspiratory chest radiograph if technique was sub-optimal",
+            "Assess clinical stability and symptom timeline"
+          ]
+        },
+        {
+          "min_confidence": 0.75,
+          "max_confidence": 1.00,
+          "class": "NORMAL",
+          "severity": "NO_ACUTE_CONSOLIDATION",
+          "clinical_summary": "Clear bilateral lung parenchyma without focal consolidation, effusion, or pneumothorax.",
+          "differential_considerations": [
+            "No acute cardiopulmonary disease identified",
+            "Early presentation before radiographic manifestation (clinical discordance possible)"
+          ],
+          "recommended_followup": [
+            "If severe respiratory symptoms are present clinically, consider chest CT as early interstitial pathology may not be visible on plain radiograph",
+            "Routine clinical monitoring"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 0.74,
+          "class": "NORMAL",
+          "severity": "PROBABLE_NORMAL",
+          "clinical_summary": "No definite focal consolidation detected, subtle non-specific vascular markings noted.",
+          "differential_considerations": [
+            "Normal anatomical variation / mild broncho-vascular prominence",
+            "Sub-radiographic infection"
+          ],
+          "recommended_followup": [
+            "Clinical correlation with respiratory symptoms and history"
+          ]
+        }
+      ]
+    },
+    "limb_fracture": {
+      "classes": ["NOT_FRACTURED", "FRACTURED"],
+      "confidence_bands": [
+        {
+          "min_confidence": 0.85,
+          "max_confidence": 1.00,
+          "class": "FRACTURED",
+          "severity": "HIGH_CONFIDENCE_FRACTURE",
+          "clinical_summary": "Cortical disruption and radiolucent fracture line identified with high activation.",
+          "differential_considerations": [
+            "Acute traumatic cortical fracture",
+            "Displaced / non-displaced structural disruption"
+          ],
+          "recommended_followup": [
+            "Orthopedic consultation and immobilization (splint/cast)",
+            "Multi-view orthogonal radiographs (AP, lateral, oblique) to assess joint involvement",
+            "Neurovascular status assessment distal to injury site"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 0.84,
+          "class": "FRACTURED",
+          "severity": "SUSPECTED_FRACTURE",
+          "clinical_summary": "Potential cortical irregularity or periosteal reaction observed.",
+          "differential_considerations": [
+            "Hairline / stress fracture",
+            "Nutrient foramen or anatomical overlap artifact"
+          ],
+          "recommended_followup": [
+            "Obtain dedicated orthogonal views",
+            "Re-evaluate in 7-10 days with repeat radiograph if focal point tenderness persists"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 1.00,
+          "class": "NOT_FRACTURED",
+          "severity": "NO_FRACTURE_IDENTIFIED",
+          "clinical_summary": "Intact cortical margins and alignment throughout visible osseous structures.",
+          "differential_considerations": [
+            "Soft tissue injury (sprain / strain / contusion)",
+            "Occult fracture not readily apparent on initial projection"
+          ],
+          "recommended_followup": [
+            "Symptomatic management (RICE protocol: Rest, Ice, Compression, Elevation)",
+            "Follow-up evaluation if unable to bear weight or if pain worsens"
+          ]
+        }
+      ]
+    }
+  }
+}
