@@ -35,24 +35,29 @@ export const ImageDiffViewer: React.FC<ImageDiffViewerProps> = ({
         )}
 
         {viewMode === 'split' && (
-          <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <img 
-              src={originalImage} 
-              alt="Original Base" 
-              className="viewer-img" 
-            />
-            <img 
-              src={gradcamOverlay} 
-              alt="Grad-CAM Layer" 
-              className="viewer-img" 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                opacity: opacity,
-                mixBlendMode: 'screen'
-              }} 
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', width: '100%', alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Original Radiograph
+              </div>
+              <img 
+                src={originalImage} 
+                alt="Original Base" 
+                className="viewer-img" 
+                style={{ width: '100%', maxHeight: '380px', objectFit: 'contain' }}
+              />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Grad-CAM Activation Map
+              </div>
+              <img 
+                src={gradcamOverlay} 
+                alt="Grad-CAM Layer" 
+                className="viewer-img" 
+                style={{ width: '100%', maxHeight: '380px', objectFit: 'contain' }}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -78,7 +83,7 @@ export const ImageDiffViewer: React.FC<ImageDiffViewerProps> = ({
             onClick={() => setViewMode('split')}
           >
             <Sliders size={12} style={{ display: 'inline', marginRight: '4px' }} />
-            Adjustable Alpha
+            Side-by-Side Comparison
           </button>
         </div>
 

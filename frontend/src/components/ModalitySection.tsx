@@ -68,7 +68,23 @@ export const ModalitySection: React.FC<ModalitySectionProps> = ({
   };
 
   const loadSample = async (sampleType: string) => {
-    // Generate synthetic sample file on the fly
+    if (meta.id === 'chest_xray') {
+      try {
+        setLoading(true);
+        const sampleFileName = sampleType === 'pneumonia' ? 'chest_pneumonia_1.jpeg' : 'chest_normal_1.jpeg';
+        const res = await fetch(`/samples/${sampleFileName}`);
+        if (!res.ok) throw new Error('Sample file not found');
+        const blob = await res.blob();
+        const file = new File([blob], `clinical_${meta.id}_${sampleType}.jpeg`, { type: 'image/jpeg' });
+        await handleFileUpload(file);
+      } catch (e) {
+        console.error('Error fetching clinical sample:', e);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (meta.category === 'CV_MODEL') {
       const canvas = document.createElement('canvas');
       canvas.width = 300;
@@ -79,39 +95,21 @@ export const ModalitySection: React.FC<ModalitySectionProps> = ({
       ctx.fillStyle = '#18181B';
       ctx.fillRect(0, 0, 300, 300);
       
-      if (meta.id === 'chest_xray') {
-        // Draw thoracic simulation
-        ctx.strokeStyle = '#52525B';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(30, 20, 240, 260);
-        // Lungs
-        ctx.fillStyle = '#27272A';
+      // Limb bone fracture simulation
+      ctx.strokeStyle = '#D4D4D8';
+      ctx.lineWidth = 18;
+      ctx.beginPath();
+      ctx.moveTo(150, 40);
+      ctx.lineTo(150, 260);
+      ctx.stroke();
+      if (sampleType === 'fracture') {
+        // Radiolucent crack
+        ctx.strokeStyle = '#09090B';
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.ellipse(90, 140, 45, 90, 0, 0, Math.PI * 2);
-        ctx.ellipse(210, 140, 45, 90, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Infiltrate patch
-        ctx.fillStyle = sampleType === 'pneumonia' ? '#A1A1AA' : '#3F3F46';
-        ctx.beginPath();
-        ctx.ellipse(210, 170, 30, 40, 0, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Limb bone fracture simulation
-        ctx.strokeStyle = '#D4D4D8';
-        ctx.lineWidth = 18;
-        ctx.beginPath();
-        ctx.moveTo(150, 40);
-        ctx.lineTo(150, 260);
+        ctx.moveTo(135, 145);
+        ctx.lineTo(165, 155);
         ctx.stroke();
-        if (sampleType === 'fracture') {
-          // Radiolucent crack
-          ctx.strokeStyle = '#09090B';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(135, 145);
-          ctx.lineTo(165, 155);
-          ctx.stroke();
-        }
       }
 
       canvas.toBlob((blob) => {

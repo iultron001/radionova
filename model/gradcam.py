@@ -91,18 +91,12 @@ class GradCAM:
 def apply_gradcam_overlay(
     original_image: Union[Image.Image, np.ndarray], 
     heatmap: np.ndarray, 
-    alpha: float = 0.45, 
+    alpha: float = 0.50, 
     colormap: int = cv2.COLORMAP_JET
 ) -> Tuple[Image.Image, np.ndarray]:
     """
-    Overlays Grad-CAM heatmap onto the original image.
-    Args:
-        original_image: PIL Image or RGB numpy array.
-        heatmap: 2D float array in range [0, 1].
-        alpha: Blending weight for heatmap (0.0 to 1.0).
-        colormap: OpenCV colormap constant (e.g. COLORMAP_JET, COLORMAP_TURBO).
-    Returns:
-        (blended_pil_image, blended_rgb_numpy_array)
+    Overlays Grad-CAM heatmap onto the original radiograph with adaptive alpha blending.
+    Thresholds low activation regions to keep the non-pathological background clean and clear.
     """
     if isinstance(original_image, Image.Image):
         orig_rgb = np.array(original_image.convert("RGB"))
@@ -111,16 +105,26 @@ def apply_gradcam_overlay(
 
     h, w, _ = orig_rgb.shape
     
-    # Resize heatmap to match image dimensions
-    resized_heatmap = cv2.resize(heatmap, (w, h), interpolation=cv2.INTER_LINEAR)
+    # High-quality bicubic interpolation
+    resized_heatmap = cv2.resize(heatmap, (w, h), interpolation=cv2.INTER_CUBIC)
+    resized_heatmap = np.clip(resized_heatmap, 0.0, 1.0)
     
-    # Convert heatmap to 8-bit colormap
-    heatmap_uint8 = np.uint8(255 * resized_heatmap)
+    # Smooth anatomical contours
+    smooth_heatmap = cv2.GaussianBlur(resized_heatmap, (15, 15), 0)
+    smooth_heatmap = np.clip(smooth_heatmap, 0.0, 1.0)
+
+    # 8-bit Colormap conversion
+    heatmap_uint8 = np.uint8(255 * smooth_heatmap)
     heatmap_color = cv2.applyColorMap(heatmap_uint8, colormap)
     heatmap_color_rgb = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
 
-    # Blend original and heatmap
-    blended = np.uint8(alpha * heatmap_color_rgb + (1 - alpha) * orig_rgb)
+    # Adaptive alpha blending: suppress low-energy background activations (<0.20)
+    thresh = 0.20
+    mask = np.clip((smooth_heatmap - thresh) / (1.0 - thresh + 1e-6), 0.0, 1.0)
+    adaptive_alpha = (mask * alpha)[:, :, np.newaxis]
+
+    # Seamless composite
+    blended = np.uint8(adaptive_alpha * heatmap_color_rgb + (1.0 - adaptive_alpha) * orig_rgb)
     blended_pil = Image.fromarray(blended)
     
     return blended_pil, blended
