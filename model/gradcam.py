@@ -76,7 +76,6 @@ class GradCAM:
         
         # Apply ReLU to retain only positive influences
         cam = F.relu(cam)
-        
         cam_np = cam.cpu().numpy()
         
         # Normalize to [0, 1]
@@ -86,17 +85,38 @@ class GradCAM:
         else:
             cam_np = np.zeros_like(cam_np)
 
+        # Apply focal power sharpening to isolate highest-intensity epicenters
+        cam_np = np.power(cam_np, 2.2)
+
+        # Suppress peripheral image boundary padding noise (outer 6% margin)
+        gh, gw = cam_np.shape
+        by = max(int(gh * 0.06), 1)
+        bx = max(int(gw * 0.06), 1)
+        border_mask = np.ones_like(cam_np)
+        border_mask[:by, :] *= 0.15
+        border_mask[-by:, :] *= 0.15
+        border_mask[:, :bx] *= 0.15
+        border_mask[:, -bx:] *= 0.15
+        cam_np = cam_np * border_mask
+
+        # Re-normalize focal map
+        if cam_np.max() > 1e-6:
+            cam_np = cam_np / cam_np.max()
+        else:
+            cam_np = np.zeros_like(cam_np)
+
         return cam_np
 
 def apply_gradcam_overlay(
     original_image: Union[Image.Image, np.ndarray], 
     heatmap: np.ndarray, 
-    alpha: float = 0.50, 
-    colormap: int = cv2.COLORMAP_JET
+    alpha: float = 0.55, 
+    colormap: int = cv2.COLORMAP_JET,
+    is_normal: bool = False
 ) -> Tuple[Image.Image, np.ndarray]:
     """
-    Overlays Grad-CAM heatmap onto the original radiograph with adaptive alpha blending.
-    Thresholds low activation regions to keep the non-pathological background clean and clear.
+    Overlays Grad-CAM heatmap onto the original radiograph with adaptive focal alpha blending.
+    If the scan is NORMAL, low/diffuse activations are suppressed so healthy tissue is not falsely marked.
     """
     if isinstance(original_image, Image.Image):
         orig_rgb = np.array(original_image.convert("RGB"))
@@ -118,9 +138,13 @@ def apply_gradcam_overlay(
     heatmap_color = cv2.applyColorMap(heatmap_uint8, colormap)
     heatmap_color_rgb = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
 
-    # Adaptive alpha blending: suppress low-energy background activations (<0.20)
-    thresh = 0.20
+    # Adaptive focal alpha blending:
+    # If normal, use high threshold (0.65) so healthy tissue stays pristine
+    # If pathological (Pneumonia/Fracture), threshold at 0.35 to show true affected epicenters
+    thresh = 0.65 if is_normal else 0.35
     mask = np.clip((smooth_heatmap - thresh) / (1.0 - thresh + 1e-6), 0.0, 1.0)
+    # Apply soft sigmoid curve to mask
+    mask = np.power(mask, 1.5)
     adaptive_alpha = (mask * alpha)[:, :, np.newaxis]
 
     # Seamless composite

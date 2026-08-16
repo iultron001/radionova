@@ -27,10 +27,12 @@ class CVService:
 
         # Load models
         self.chest_model = self._load_model(settings.CHEST_MODEL_PATH, num_classes=2, label="Chest X-Ray")
-        self.chest_gradcam = GradCAM(self.chest_model, target_layer=self.chest_model.features.denseblock4)
+        chest_target = self.chest_model.features.denseblock4.denselayer16.conv2
+        self.chest_gradcam = GradCAM(self.chest_model, target_layer=chest_target)
 
         self.limb_model = self._load_model(settings.LIMB_MODEL_PATH, num_classes=2, label="Limb Fracture")
-        self.limb_gradcam = GradCAM(self.limb_model, target_layer=self.limb_model.features.denseblock4)
+        limb_target = self.limb_model.features.denseblock4.denselayer16.conv2
+        self.limb_gradcam = GradCAM(self.limb_model, target_layer=limb_target)
 
     def _load_model(self, checkpoint_path: str, num_classes: int, label: str) -> torch.nn.Module:
         model = build_densenet121(num_classes=num_classes, pretrained=True, freeze_features=False)
@@ -65,9 +67,12 @@ class CVService:
         pred_class = self.chest_classes[pred_idx]
         confidence = float(probs[pred_idx])
 
-        # Generate Grad-CAM
-        heatmap = self.chest_gradcam.generate_heatmap(input_tensor, target_class=pred_idx)
-        overlay_pil, _ = apply_gradcam_overlay(image, heatmap, alpha=0.45)
+        # Generate Grad-CAM for the pathological class (1 = Pneumonia)
+        # If normal, we suppress false hotspots so healthy lungs stay clean
+        is_normal = (pred_class == "NORMAL")
+        target_cam_class = 1 if not is_normal else pred_idx
+        heatmap = self.chest_gradcam.generate_heatmap(input_tensor, target_class=target_cam_class)
+        overlay_pil, _ = apply_gradcam_overlay(image, heatmap, alpha=0.55, is_normal=is_normal)
 
         # Base64 encodings
         original_b64 = image_to_base64(image)
@@ -103,9 +108,11 @@ class CVService:
         pred_class = self.limb_classes[pred_idx]
         confidence = float(probs[pred_idx])
 
-        # Generate Grad-CAM
-        heatmap = self.limb_gradcam.generate_heatmap(input_tensor, target_class=pred_idx)
-        overlay_pil, _ = apply_gradcam_overlay(image, heatmap, alpha=0.45)
+        # Generate Grad-CAM for fracture class
+        is_normal = (pred_class == "NOT_FRACTURED")
+        target_cam_class = 1 if not is_normal else pred_idx
+        heatmap = self.limb_gradcam.generate_heatmap(input_tensor, target_class=target_cam_class)
+        overlay_pil, _ = apply_gradcam_overlay(image, heatmap, alpha=0.55, is_normal=is_normal)
 
         original_b64 = image_to_base64(image)
         gradcam_b64 = image_to_base64(overlay_pil)
