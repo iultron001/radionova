@@ -1,0 +1,8 @@
+{
+  "python.analysis.extraPaths": [
+    "/Radionova"
+  ],
+  "python.autoComplete.extraPaths": [
+    "/Radionova"
+  ]
+}
