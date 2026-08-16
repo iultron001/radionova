@@ -14,7 +14,7 @@ async def predict_chest(file: UploadFile = File(...)):
     Runs DenseNet-121 inference, generates Grad-CAM explainability heatmap overlay,
     and returns rule-based clinical guidance.
     """
-    if not file.content_type.startswith("image/"):
+    if file.content_type and not (file.content_type.startswith("image/") or file.content_type == "application/octet-stream"):
         raise HTTPException(status_code=400, detail="File must be an image (JPEG/PNG).")
     try:
         contents = await file.read()
@@ -29,7 +29,7 @@ async def predict_limb(file: UploadFile = File(...)):
     Accepts Limb bone radiograph image (JPEG/PNG).
     Runs DenseNet-121 fracture detection, Grad-CAM heatmap, and clinical guidance.
     """
-    if not file.content_type.startswith("image/"):
+    if file.content_type and not (file.content_type.startswith("image/") or file.content_type == "application/octet-stream"):
         raise HTTPException(status_code=400, detail="File must be an image (JPEG/PNG).")
     try:
         contents = await file.read()

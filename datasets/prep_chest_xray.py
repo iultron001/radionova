@@ -28,6 +28,8 @@ def find_images_in_dir(base_dir: Path) -> List[Tuple[str, str]]:
     samples = []
     
     for path in base_dir.rglob("*"):
+        if "__MACOSX" in str(path) or path.name.startswith("._"):
+            continue
         if path.is_file() and path.suffix in valid_extensions:
             # Check parent directory hierarchy for class label
             path_str_upper = str(path).upper()
@@ -115,8 +117,9 @@ def download_from_kaggle() -> Path:
         print(f"kagglehub download unavailable: {e}")
         
     try:
-        from kaggle.api.kaggle_api_extended import KaggleApi
-        api = KaggleApi()
+        import importlib
+        kaggle_mod = importlib.import_module("kaggle.api.kaggle_api_extended")
+        api = getattr(kaggle_mod, "KaggleApi")()
         api.authenticate()
         target_dir = Path("datasets/chest_xray")
         target_dir.mkdir(parents=True, exist_ok=True)

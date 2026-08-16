@@ -50,12 +50,13 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
         }
     }
 
-def train_one_epoch(model, loader, criterion, optimizer, device):
+def train_one_epoch(model, loader, criterion, optimizer, device, epoch_idx=1, total_epochs=1):
     model.train()
     running_loss = 0.0
     all_preds, all_labels = [], []
+    total_batches = len(loader)
 
-    for images, labels in loader:
+    for i, (images, labels) in enumerate(loader):
         images, labels = images.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(images)
@@ -67,6 +68,10 @@ def train_one_epoch(model, loader, criterion, optimizer, device):
         _, preds = torch.max(outputs, 1)
         all_preds.extend(preds.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
+
+        if (i + 1) % 25 == 0 or (i + 1) == total_batches:
+            batch_acc = np.mean(np.array(all_preds) == np.array(all_labels)) * 100
+            print(f"  [Epoch {epoch_idx:02d}/{total_epochs:02d}] Batch [{i+1:03d}/{total_batches:03d}] Loss: {loss.item():.4f} Cumul Acc: {batch_acc:.1f}%", flush=True)
 
     epoch_loss = running_loss / len(loader.dataset)
     metrics = compute_metrics(np.array(all_labels), np.array(all_preds))
@@ -130,26 +135,36 @@ def main():
     model = model.to(device)
 
     # Class weights for CrossEntropyLoss to address class imbalance
-    # PNEUMONIA has ~3x more samples than NORMAL in typical chest datasets
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-2)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+    # NORMAL: ~3799, PNEUMONIA: ~10255. Weighting balances the penalty.
+    n_train_norm = int((train_ds.df["label"] == "NORMAL").sum())
+    n_train_pneu = int((train_ds.df["label"] == "PNEUMONIA").sum())
+    w_norm = len(train_ds) / (2.0 * max(n_train_norm, 1))
+    w_pneu = len(train_ds) / (2.0 * max(n_train_pneu, 1))
+    class_weights = torch.tensor([w_norm, w_pneu], dtype=torch.float32).to(device)
+    print(f"Class distribution: NORMAL={n_train_norm}, PNEUMONIA={n_train_pneu}")
+    print(f"Class weighting applied: NORMAL={w_norm:.3f}, PNEUMONIA={w_pneu:.3f}")
 
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+
+    # STAGE 1: Train classifier head with frozen features for fast convergence
+    print("\n--- Stage 1: Training Classifier Head (Backbone Frozen) ---")
+    for param in model.features.parameters():
+        param.requires_grad = False
+
+    optimizer = torch.optim.AdamW(model.classifier.parameters(), lr=1e-3, weight_decay=1e-2)
+    
     best_val_f1 = 0.0
     best_weights_path = Path(args.output_weights)
     best_weights_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print("\nStarting model training...")
     start_time = time.time()
-
-    for epoch in range(1, args.epochs + 1):
-        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, device)
+    for epoch in range(1, 3):
+        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch_idx=epoch, total_epochs=2)
         val_metrics = evaluate(model, val_loader, criterion, device)
-        scheduler.step()
 
-        print(f"Epoch [{epoch:02d}/{args.epochs:02d}] "
+        print(f"[Stage 1] Epoch [{epoch:02d}/02] "
               f"Train Loss: {train_metrics['loss']:.4f} Acc: {train_metrics['accuracy']*100:.1f}% Rec: {train_metrics['recall_sensitivity']*100:.1f}% | "
-              f"Val Loss: {val_metrics['loss']:.4f} Acc: {val_metrics['accuracy']*100:.1f}% Rec: {val_metrics['recall_sensitivity']*100:.1f}% F1: {val_metrics['f1_score']:.4f}")
+              f"Val Loss: {val_metrics['loss']:.4f} Acc: {val_metrics['accuracy']*100:.1f}% Rec: {val_metrics['recall_sensitivity']*100:.1f}% F1: {val_metrics['f1_score']:.4f}", flush=True)
 
         if val_metrics['f1_score'] > best_val_f1:
             best_val_f1 = val_metrics['f1_score']
@@ -158,6 +173,37 @@ def main():
                 "val_metrics": val_metrics,
                 "classes": CLASSES,
                 "architecture": "densenet121",
+                "stage": 1,
+                "epoch": epoch
+            }, str(best_weights_path))
+
+    # STAGE 2: Unfreeze denseblock4 + norm5 + classifier for fine-tuning
+    print("\n--- Stage 2: Fine-Tuning denseblock4 & Classifier Head ---", flush=True)
+    for name, param in model.features.named_parameters():
+        if "denseblock4" in name or "norm5" in name:
+            param.requires_grad = True
+
+    trainable_params = [p for p in model.parameters() if p.requires_grad]
+    optimizer = torch.optim.AdamW(trainable_params, lr=1e-4, weight_decay=1e-2)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+
+    for epoch in range(1, args.epochs + 1):
+        train_metrics = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch_idx=epoch, total_epochs=args.epochs)
+        val_metrics = evaluate(model, val_loader, criterion, device)
+        scheduler.step()
+
+        print(f"[Stage 2] Epoch [{epoch:02d}/{args.epochs:02d}] "
+              f"Train Loss: {train_metrics['loss']:.4f} Acc: {train_metrics['accuracy']*100:.1f}% Rec: {train_metrics['recall_sensitivity']*100:.1f}% | "
+              f"Val Loss: {val_metrics['loss']:.4f} Acc: {val_metrics['accuracy']*100:.1f}% Rec: {val_metrics['recall_sensitivity']*100:.1f}% F1: {val_metrics['f1_score']:.4f}", flush=True)
+
+        if val_metrics['f1_score'] > best_val_f1:
+            best_val_f1 = val_metrics['f1_score']
+            torch.save({
+                "model_state_dict": model.state_dict(),
+                "val_metrics": val_metrics,
+                "classes": CLASSES,
+                "architecture": "densenet121",
+                "stage": 2,
                 "epoch": epoch
             }, str(best_weights_path))
             print(f"  >>> Best model saved (Val F1: {best_val_f1:.4f}) -> {best_weights_path}")
