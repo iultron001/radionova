@@ -1,81 +1,94 @@
 import React from 'react';
-import { ModalityId, ModalityMeta } from '../types';
+import { ModalityId } from '../types';
+import { 
+  Activity, 
+  Droplet, 
+  Bone, 
+  Brain, 
+  Ribbon,
+  X,
+  LucideIcon
+} from 'lucide-react';
 
 interface TabNavigationProps {
   activeTab: ModalityId;
   onSelectTab: (tab: ModalityId) => void;
+  isDrawer?: boolean;
+  onCloseDrawer?: () => void;
 }
 
-export const MODALITIES: ModalityMeta[] = [
-  {
-    id: 'chest_xray',
-    name: 'Chest X-Ray',
-    category: 'CV_MODEL',
-    badge: 'PRIORITY #1 • DENSENET-121',
-    accepts: 'image/*',
-    description: 'Deep Learning pneumonia detection (Normal vs Pneumonia) with Grad-CAM explainability heatmap.'
-  },
-  {
-    id: 'blood',
-    name: 'Blood Test',
-    category: 'LLM_PIPELINE',
-    badge: 'LLM EXPLANATION PIPELINE',
-    accepts: '.pdf,.txt,.csv,image/*',
-    description: 'Multi-parameter laboratory hematology and metabolic panel plain-language clinical interpretation.'
-  },
-  {
-    id: 'limb_fracture',
-    name: 'Limb (Fracture)',
-    category: 'CV_MODEL',
-    badge: 'PRIORITY #2 • DENSENET-121',
-    accepts: 'image/*',
-    description: 'Osseous disruption and cortical fracture detection with Grad-CAM focus mapping.'
-  },
-  {
-    id: 'mri',
-    name: 'MRI',
-    category: 'LLM_PIPELINE',
-    badge: 'LLM EXPLANATION PIPELINE',
-    accepts: '.pdf,.txt,image/*',
-    description: 'Multi-sequence Magnetic Resonance Imaging structural scan interpretation and plain-language summary.'
-  },
-  {
-    id: 'ecg',
-    name: 'ECG',
-    category: 'LLM_PIPELINE',
-    badge: 'LLM EXPLANATION PIPELINE',
-    accepts: '.pdf,.txt,image/*',
-    description: '12-Lead Electrocardiogram rhythm, conduction interval, and ST-T segment morphological review.'
-  },
-  {
-    id: 'ct',
-    name: 'CT Scan',
-    category: 'LLM_PIPELINE',
-    badge: 'LLM EXPLANATION PIPELINE',
-    accepts: '.pdf,.txt,image/*',
-    description: 'Cross-sectional computed tomography attenuation and soft-tissue anatomical review.'
-  }
+interface ModalityTabConfig {
+  id: ModalityId;
+  num: string;
+  label: string;
+  tag: string;
+  icon: LucideIcon;
+}
+
+export const MODALITY_CONFIGS: ModalityTabConfig[] = [
+  { id: 'chest_xray', num: '01', label: 'Chest Radiography', tag: 'CV Model', icon: Activity },
+  { id: 'limb_fracture', num: '02', label: 'Limb & Bone Fracture', tag: 'CV Model', icon: Bone },
+  { id: 'mri', num: '03', label: 'Brain MRI Neuro', tag: 'CV Model', icon: Brain },
+  { id: 'blood', num: '04', label: 'Hematology & Blood', tag: 'LLM Parser', icon: Droplet },
+  { id: 'breast_cancer', num: '05', label: 'Breast Cancer Screening', tag: 'CV Model', icon: Ribbon },
 ];
 
-export const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onSelectTab }) => {
+export const TabNavigation: React.FC<TabNavigationProps> = ({
+  activeTab,
+  onSelectTab,
+  isDrawer = false,
+  onCloseDrawer
+}) => {
   return (
-    <nav className="tab-nav" aria-label="Diagnostic Modality Navigation">
-      {MODALITIES.map((mod, index) => {
-        const isActive = activeTab === mod.id;
-        return (
-          <button
-            key={mod.id}
-            className={`tab-btn ${isActive ? 'active' : ''}`}
-            onClick={() => onSelectTab(mod.id)}
-          >
-            <div className="tab-num">MODALITY 0{index + 1}</div>
-            <div className="tab-label">{mod.name}</div>
-            <div className="tab-tag">
-              {mod.category === 'CV_MODEL' ? 'CV MODEL' : 'LLM MODALITY'}
-            </div>
-          </button>
-        );
-      })}
+    <nav className="vertical-sidebar-nav" aria-label="Clinical Modalities Navigation">
+      <div className="sidebar-nav-header">
+        <span className="sidebar-nav-title">Diagnostic Suites</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="sidebar-nav-count">5 Modalities</span>
+          {isDrawer && onCloseDrawer && (
+            <button 
+              onClick={onCloseDrawer}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="sidebar-nav-list">
+        {MODALITY_CONFIGS.map((item) => {
+          const isActive = activeTab === item.id;
+          const Icon = item.icon;
+
+          return (
+            <button
+              key={item.id}
+              className={`sidebar-tab-btn ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                onSelectTab(item.id);
+                if (isDrawer && onCloseDrawer) onCloseDrawer();
+              }}
+              aria-selected={isActive}
+              role="tab"
+            >
+              <div className="sidebar-tab-left">
+                <span className="sidebar-tab-num">{item.num}</span>
+                <div className={`sidebar-tab-icon-wrap ${isActive ? 'active' : ''}`}>
+                  <Icon size={18} />
+                </div>
+              </div>
+
+              <div className="sidebar-tab-content">
+                <span className="sidebar-tab-label">{item.label}</span>
+                <span className={`sidebar-tab-tag ${isActive ? 'active' : ''}`}>
+                  {item.tag}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 };

@@ -18,26 +18,31 @@ export const ImageDiffViewer: React.FC<ImageDiffViewerProps> = ({
   return (
     <div>
       <div className="viewer-container">
-        {viewMode === 'original' && (
-          <img 
-            src={originalImage} 
-            alt={`Original ${modality}`} 
-            className="viewer-img" 
-          />
-        )}
-
-        {viewMode === 'gradcam' && (
-          <img 
-            src={gradcamOverlay} 
-            alt={`Grad-CAM Overlay ${modality}`} 
-            className="viewer-img" 
-          />
-        )}
-
-        {viewMode === 'split' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', width: '100%', alignItems: 'center' }}>
+        {viewMode !== 'split' ? (
+          <div className="viewer-crossfade-stage">
+            {/* Base Original Radiograph */}
+            <img 
+              src={originalImage} 
+              alt={`Original ${modality}`} 
+              className="viewer-crossfade-img"
+              style={{ opacity: 1, zIndex: 1 }}
+            />
+            {/* Grad-CAM Heatmap Layer with Smooth 350ms Crossfade */}
+            <img 
+              src={gradcamOverlay} 
+              alt={`Grad-CAM Overlay ${modality}`} 
+              className="viewer-crossfade-img"
+              style={{
+                opacity: viewMode === 'gradcam' ? 1 : 0,
+                zIndex: 2,
+                pointerEvents: 'none'
+              }}
+            />
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', width: '100%', padding: '16px', alignItems: 'center' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Original Radiograph
               </div>
               <img 
@@ -48,14 +53,14 @@ export const ImageDiffViewer: React.FC<ImageDiffViewerProps> = ({
               />
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-accent)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--accent)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Grad-CAM Activation Map
               </div>
               <img 
                 src={gradcamOverlay} 
                 alt="Grad-CAM Layer" 
                 className="viewer-img" 
-                style={{ width: '100%', maxHeight: '380px', objectFit: 'contain' }}
+                style={{ width: '100%', maxHeight: '380px', objectFit: 'contain', opacity: opacity }}
               />
             </div>
           </div>
@@ -83,13 +88,13 @@ export const ImageDiffViewer: React.FC<ImageDiffViewerProps> = ({
             onClick={() => setViewMode('split')}
           >
             <Sliders size={12} style={{ display: 'inline', marginRight: '4px' }} />
-            Side-by-Side Comparison
+            Side-by-Side
           </button>
         </div>
 
         {viewMode === 'split' && (
           <div className="opacity-slider-group">
-            <span>Heatmap Alpha: {Math.round(opacity * 100)}%</span>
+            <span>Alpha: {Math.round(opacity * 100)}%</span>
             <input
               type="range"
               min="0.1"

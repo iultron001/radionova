@@ -24,16 +24,18 @@ async def health_check():
         "models": {
             "chest_xray_densenet121": "loaded",
             "limb_fracture_densenet121": "loaded",
+            "brain_mri_densenet121": "loaded",
+            "breast_cancer_densenet121": "loaded",
+            "gatekeeper_engine": "active",
             "gradcam_engine": "active"
         },
         "llm_api_configured": llm_service.api_key_available,
         "active_modalities": [
-            {"id": "chest_xray", "name": "Chest X-Ray", "type": "Deep Learning (DenseNet-121 + Grad-CAM)"},
-            {"id": "blood", "name": "Blood Test", "type": "LLM Plain-Language Explanation"},
-            {"id": "limb_fracture", "name": "Limb (Fracture)", "type": "Deep Learning (DenseNet-121 + Grad-CAM)"},
-            {"id": "mri", "name": "MRI", "type": "LLM Plain-Language Explanation"},
-            {"id": "ecg", "name": "ECG", "type": "LLM Plain-Language Explanation"},
-            {"id": "ct", "name": "CT Scan", "type": "LLM Plain-Language Explanation"}
+            {"id": "chest_xray", "name": "Chest Radiography", "type": "Deep Learning (DenseNet-121 + Grad-CAM)"},
+            {"id": "blood", "name": "Hematology & Metabolic Panel", "type": "Dual-Language Clinical Synthesis"},
+            {"id": "limb_fracture", "name": "Limb & Bone Fracture", "type": "Deep Learning (DenseNet-121 + Grad-CAM)"},
+            {"id": "mri", "name": "Brain MRI Neuroimaging", "type": "Deep Learning + Clinical Report"},
+            {"id": "breast_cancer", "name": "Breast Cancer Mammography", "type": "Deep Learning (DenseNet-121 + BIRADS)"}
         ],
         "disclaimer": "For educational/research purposes only — not a substitute for professional medical diagnosis."
     }

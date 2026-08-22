@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RadiNova AI — Comprehensive Technical Architecture & Training Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #161f33;
+      --bg-card-hover: #1c2742;
+      --border-subtle: #23314e;
+      --border-accent: #3b82f6;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #8b5cf6;
+      --code-bg: #0d1322;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Layout & Navigation */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 14, 23, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 1.1rem;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--accent-cyan);
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-cyan);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    /* Hero Header */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 3rem;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, rgba(6, 182, 212, 0.06) 50%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 999px;
+      color: var(--accent-cyan);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 40%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      max-width: 820px;
+      margin: 0 auto 2rem;
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1rem;
+      text-align: center;
+    }
+
+    .stat-card .val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-card .lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.25rem;
+    }
+
+    /* Disclaimer Notice */
+    .disclaimer-banner {
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.28);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 3rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .disclaimer-icon {
+      font-size: 1.5rem;
+      color: var(--accent-rose);
+      flex-shrink: 0;
+    }
+
+    .disclaimer-text {
+      font-size: 0.875rem;
+      color: #fca5a5;
+    }
+
+    .disclaimer-text strong {
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 4rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-num {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-accent);
+      color: var(--accent-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .section-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      background: var(--bg-card-hover);
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .card ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .card ul li {
+      position: relative;
+      padding-left: 1.4rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .card ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0.4rem;
+      color: var(--accent-cyan);
+      font-weight: bold;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    /* Architecture Visual Diagram */
+    .diagram-container {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    .pipeline-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-width: 700px;
+    }
+
+    .flow-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .flow-node {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .flow-node.active-node {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+    }
+
+    .flow-node-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent-cyan);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .flow-node-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .connector-arrow {
+      text-align: center;
+      color: var(--accent-blue);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    /* Comparison Table */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      margin: 1.5rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      background: var(--bg-secondary);
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 1px solid var(--border-subtle);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    tbody td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-win {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-alt {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-no {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    /* Code Blocks & Command Snippets */
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .code-header {
+      background: #090d17;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .code-content {
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+
+    pre {
+      margin: 0;
+    }
+
+    .kw { color: #f472b6; font-weight: 600; }
+    .fn { color: #60a5fa; }
+    .str { color: #34d399; }
+    .num { color: #fbbf24; }
+    .com { color: #6b7280; font-style: italic; }
+
+    /* Interactive Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Formula Box */
+    .math-callout {
+      background: rgba(139, 92, 246, 0.08);
+      border-left: 4px solid var(--accent-purple);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 1.25rem 0;
+    }
+
+    .math-callout h4 {
+      color: #c4b5fd;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* FAQ Accordion */
+    .faq-item {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .faq-q {
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-q:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .faq-a {
+      padding: 0 1.5rem 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      display: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 1rem;
+    }
+
+    .faq-item.open .faq-a {
+      display: block;
+    }
+
+    .faq-item.open .faq-q::after {
+      transform: rotate(180deg);
+    }
+
+    .faq-q::after {
+      content: "▼";
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      transition: transform 0.2s;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .top-nav {
+        padding: 0.75rem 1rem;
+      }
+      .nav-links {
+        display: none;
+      }
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .container {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="top-nav">
+    <a href="#" class="brand">
+      <div class="brand-logo">R</div>
+      <div>
+        <span class="brand-title">RadiNova AI</span>
+        <span class="brand-badge">Tech Blueprint</span>
+      </div>
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#tech-stack">Tech Stack</a></li>
+        <li><a href="#datasets">Datasets</a></li>
+        <li><a href="#training-method">Training Method</a></li>
+        <li><a href="#why-this-method">Why DenseNet-121</a></li>
+        <li><a href="#step-by-step">Train From Scratch</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- Hero Header -->
+    <div class="hero">
+      <div class="hero-tag">Clinical Decision Support • Explainable AI • Deep Learning</div>
+      <h1>The Complete Plain-English Guide to RadiNova AI</h1>
+      <p class="hero-subtitle">
+        Understand everything about RadiNova AI in simple, intuitive terms: how medical computer vision works, how we train deep learning models, which datasets we use, why DenseNet-121 was chosen over other architectures, and how to train your own diagnostic model from scratch.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="val">94.8%</div>
+          <div class="lbl">Recall (Sensitivity)</div>
+        </div>
+        <div class="stat-card">
+          <div class="val">DenseNet-121</div>
+          <div class="lbl">Vision Backbone</div>
+        </div>
+        <div class="stat-card">
+          <div class="val">Grad-CAM</div>
+          <div class="lbl">Visual Explainability</div>
+        </div>
+        <div class="stat-card">
+          <div class="val">80/10/10</div>
+          <div class="lbl">Stratified Re-Split</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mandatory Disclaimer -->
+    <div class="disclaimer-banner">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-text">
+        <strong>Mandatory Academic & Research Disclaimer:</strong> RadiNova AI is an experimental clinical decision support system built for educational, research, and hackathon demonstration purposes. It is <strong>NOT</strong> an FDA/CE certified medical device and must never be used as a standalone or definitive diagnostic tool. All AI predictions, Grad-CAM heatmaps, and plain-language summaries require verification by a licensed medical professional.
+      </div>
+    </div>
+
+    <!-- Section 1: Project Overview -->
+    <section id="overview">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2>What is RadiNova AI? (The Big Picture in Simple Words)</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">💡 The Problem We Solve</div>
+          <p>
+            Radiologists and emergency room physicians review hundreds of complex scans every day. When a patient arrives with severe coughing or a limb trauma, every minute matters.
+          </p>
+          <p>
+            However, minor fractures and early-stage lung infections can be subtle and easily missed due to clinician fatigue, high emergency patient load, or lack of specialist coverage in rural clinics.
+          </p>
+          <ul>
+            <li>Subtle lung opacity easily overlooked during peak emergency hours</li>
+            <li>Lack of instant second-opinion triage tools in urgent care</li>
+            <li>Black-box AI models that tell doctors "it's positive" without showing <em>where</em> or <em>why</em></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🛡️ The RadiNova AI Solution</div>
+          <p>
+            RadiNova AI is an end-to-end medical assistant designed to act as a <strong>triage copilot for clinicians</strong>.
+          </p>
+          <p>
+            It does not replace doctors; instead, it provides an instant, evidence-grounded second opinion in four transparent ways:
+          </p>
+          <ul>
+            <li><strong>Instant Diagnosis:</strong> Detects Pneumonia and Limb Fractures in under 200 milliseconds.</li>
+            <li><strong>Visual Explainability (Grad-CAM):</strong> Draws a glowing heatmap directly on the image to prove <em>where</em> the disease is located.</li>
+            <li><strong>Clinical Guidance Rules:</strong> Pairs AI probabilities with established medical guidelines (CURB-65, antibiotic protocols).</li>
+            <li><strong>Patient-Friendly Reports:</strong> Translates complex medical jargon into plain English and generates downloadable clinical PDF reports.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: How It Works (End-to-End Workflow) -->
+    <section id="how-it-works">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2>How the Whole System Works (Step-by-Step)</h2>
+      </div>
+
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        From the moment a radiograph is dragged into the browser to the generation of a validated PDF report, here is the complete journey of a scan:
+      </p>
+
+      <div class="diagram-container">
+        <div class="pipeline-flow">
+          <!-- Step 1 & 2 -->
+          <div class="flow-row">
+            <div class="flow-node active-node">
+              <div class="flow-node-title">1. Image Ingestion & Normalization</div>
+              <div class="flow-node-desc">User uploads X-ray image (DICOM/JPEG/PNG). The frontend sends it to FastAPI backend where it is resized to 224x224 and normalized with ImageNet mean/std tensors.</div>
+            </div>
+            <div class="flow-node active-node">
+              <div class="flow-node-title">2. PyTorch DenseNet-121 Forward Pass</div>
+              <div class="flow-node-desc">The neural network processes the image through 121 dense layers. Feature maps are extracted from <code>denseblock4</code> and softmax outputs probabilities.</div>
+            </div>
+          </div>
+
+          <div class="connector-arrow">▼</div>
+
+          <!-- Step 3 & 4 -->
+          <div class="flow-row">
+            <div class="flow-node active-node">
+              <div class="flow-node-title">3. Grad-CAM Explainability Engine</div>
+              <div class="flow-node-desc">Gradients of the predicted class score are backpropagated into the final dense feature block. Positive activations are weighted and blended over the scan as a heatmap.</div>
+            </div>
+            <div class="flow-node active-node">
+              <div class="flow-node-title">4. Evidence-Grounded Rule Engine</div>
+              <div class="flow-node-desc">The prediction is cross-referenced with <code>rules/clinical_guidance.json</code> to fetch triage severity levels, risk stratification, and recommended next steps.</div>
+            </div>
+          </div>
+
+          <div class="connector-arrow">▼</div>
+
+          <!-- Step 5 & 6 -->
+          <div class="flow-row">
+            <div class="flow-node active-node">
+              <div class="flow-node-title">5. Multi-Modal LLM Plain Explanation</div>
+              <div class="flow-node-desc">Gemini / GPT / Claude translates findings into layman's language for the patient (with an offline rule-based fallback system if no API key is set).</div>
+            </div>
+            <div class="flow-node active-node">
+              <div class="flow-node-title">6. Automated Clinical PDF Generation</div>
+              <div class="flow-node-desc">A structured, publication-ready PDF report is generated containing the original scan, Grad-CAM heatmap overlay, doctor review fields, and clinical metrics.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Tech Stack Breakdown -->
+    <section id="tech-stack">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2>The Complete Tech Stack (What It's Built With)</h2>
+      </div>
+
+      <div class="grid-3">
+        <!-- Frontend -->
+        <div class="card">
+          <div class="card-title">🖥️ Frontend Layer</div>
+          <p>Built with modern web standards focused on responsiveness and Swiss Style clarity:</p>
+          <ul>
+            <li><strong>React 18 & Vite:</strong> Ultra-fast component lifecycle and instant hot-module reload.</li>
+            <li><strong>TypeScript:</strong> 100% strict type safety for medical data schemas and API contracts.</li>
+            <li><strong>Swiss Design System:</strong> 12-column grid, high-contrast typography (Inter), zero visual clutter.</li>
+            <li><strong>Lucide Icons:</strong> Crisp, lightweight medical iconography.</li>
+          </ul>
+        </div>
+
+        <!-- Backend -->
+        <div class="card">
+          <div class="card-title">⚡ Backend Engine</div>
+          <p>Asynchronous, high-throughput microservice architecture:</p>
+          <ul>
+            <li><strong>FastAPI & Uvicorn:</strong> Async Python API with automatic OpenAPI / Swagger documentation.</li>
+            <li><strong>Pydantic v2:</strong> Strict validation for request headers, payloads, and prediction outputs.</li>
+            <li><strong>ReportLab / PDFKit:</strong> Programmatic PDF generation engine for standardized reports.</li>
+            <li><strong>CORS Middleware:</strong> Secure communication between client and server.</li>
+          </ul>
+        </div>
+
+        <!-- AI & CV -->
+        <div class="card">
+          <div class="card-title">🧠 Deep Learning & Vision</div>
+          <p>State-of-the-art computer vision and explainable AI pipelines:</p>
+          <ul>
+            <li><strong>PyTorch & Torchvision:</strong> DenseNet-121 backbone with custom classification heads.</li>
+            <li><strong>Grad-CAM:</strong> Custom hook implementation on <code>denseblock4</code>.</li>
+            <li><strong>NumPy, OpenCV & Pillow:</strong> Fast tensor conversions and heatmap color mapping.</li>
+            <li><strong>Multi-Modal LLM Engine:</strong> Gemini / Claude / OpenAI with offline template fallback.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Datasets Used -->
+    <section id="datasets">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2>The Datasets: Where the Training Data Comes From</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🫁 1. Chest X-Ray Pneumonia Dataset</div>
+          <p>
+            <strong>Source:</strong> Kaggle (<code>paultimothymooney/chest-xray-pneumonia</code>) — Kermany et al., Cell 2018.
+          </p>
+          <ul>
+            <li><strong>Total Images:</strong> 5,856 pediatric chest radiographs (anterior-posterior).</li>
+            <li><strong>Classes:</strong> <code>NORMAL</code> (Healthy lungs) vs. <code>PNEUMONIA</code> (Bacterial & Viral).</li>
+            <li><strong>Raw Imbalance:</strong> ~1,583 Normal vs ~4,273 Pneumonia images (~1:2.7 ratio).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🦴 2. Limb Bone Fracture Dataset</div>
+          <p>
+            <strong>Source:</strong> Kaggle (<code>devbatrax/fracture-detection-using-x-ray-images</code>) & MURA subset.
+          </p>
+          <ul>
+            <li><strong>Total Images:</strong> Multi-region bone radiographs (arms, wrists, legs, fingers).</li>
+            <li><strong>Classes:</strong> <code>NOT_FRACTURED</code> (Intact bone cortex) vs. <code>FRACTURED</code> (Cortical breach).</li>
+            <li><strong>Challenge:</strong> Micro-fractures and hairline cracks requiring high-resolution feature maps.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Why Kaggle Split was Broken -->
+      <div class="card" style="margin-top: 1.5rem; border-color: var(--accent-amber);">
+        <div class="card-title" style="color: var(--accent-amber);">
+          ⚠️ The "Broken Official Split" Problem & How We Fixed It
+        </div>
+        <p>
+          In the original Kaggle dataset, the official <code>val/</code> folder contained <strong>only 16 images</strong> (8 Normal, 8 Pneumonia). Testing a model on only 16 images is statistically meaningless (a single mistake shifts accuracy by 6.25%).
+        </p>
+        <p>
+          <strong>Our Fix (80/10/10 Stratified Re-Split):</strong><br />
+          We pooled all 5,856 images into a single pool and used a fixed random seed (<code>seed=42</code>) to create a deterministic split:
+        </p>
+        <ul>
+          <li><strong>Train Set (80%):</strong> ~4,684 images used to update network weights.</li>
+          <li><strong>Validation Set (10%):</strong> ~586 images used for early stopping and hyperparameter tuning.</li>
+          <li><strong>Test Set (10%):</strong> ~586 unseen images used exclusively for final benchmark evaluation.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 5: Training Methodology -->
+    <section id="training-method">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2>How Our Models Were Trained (Our Exact Methodology)</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🎯 The 2-Stage Training Strategy</div>
+          <p>
+            Training a 121-layer deep network from random scratch on medical images often leads to overfitting or gradient explosion. We used a <strong>2-Stage Transfer Learning</strong> approach:
+          </p>
+          <ul>
+            <li>
+              <strong>Stage 1 (Head Warmup):</strong> We freeze all convolutional feature layers and only train the new Linear Classifier head (Dropout 0.3 + Linear) for 2 epochs using AdamW (lr=1e-3). This aligns the classifier without disrupting pre-trained visual feature weights.
+            </li>
+            <li>
+              <strong>Stage 2 (Deep Fine-Tuning):</strong> We unfreeze <code>denseblock4</code> and <code>norm5</code> (the deepest high-level feature extractors) and fine-tune with a low learning rate (lr=1e-4) and Cosine Annealing scheduler.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚖️ Handling Class Imbalance (Weighted Loss)</div>
+          <p>
+            Because there are more Pneumonia cases than Normal cases, a dumb AI could guess "Pneumonia" all the time and still achieve 75% accuracy.
+          </p>
+          <p>
+            To prevent this, we calculate <strong>inverse-frequency class weights</strong> and feed them directly into PyTorch's <code>nn.CrossEntropyLoss(weight=class_weights)</code>:
+          </p>
+          <div class="math-callout">
+            <h4>Weighted Cross-Entropy Loss:</h4>
+            <code>w_class = Total_Samples / (2.0 × Samples_In_Class)</code>
+            <p style="font-size: 0.8rem; color: #a78bfa; margin-top: 0.25rem;">
+              This penalizes the model more heavily if it fails to detect a rare class sample!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Priority Metric -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-title">🩺 Why Recall (Sensitivity) is Our #1 Priority Metric</div>
+        <p>
+          In typical computer science tasks (like classifying cat vs. dog photos), <strong>Accuracy</strong> is king. In clinical triage, <strong>Accuracy alone can be dangerous</strong>.
+        </p>
+        <div class="grid-2" style="margin-top: 1rem;">
+          <div style="background: rgba(244, 63, 94, 0.08); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(244, 63, 94, 0.2);">
+            <strong style="color: var(--accent-rose);">❌ False Negative (Missed Disease):</strong>
+            <p style="font-size: 0.85rem; margin-top: 0.35rem; color: #fca5a5;">
+              The AI says a sick patient is "Healthy". The patient goes home untreated and their condition deteriorates. <strong>Unacceptable in medicine.</strong>
+            </p>
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.08); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.2);">
+            <strong style="color: var(--accent-emerald);">✔️ High Sensitivity / Recall (94.8%):</strong>
+            <p style="font-size: 0.85rem; margin-top: 0.35rem; color: #6ee7b7;">
+              The AI flags virtually every suspicious pattern. A human radiologist then verifies the flagged scans. <strong>Safe clinical triage.</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Why DenseNet-121 (Comparison with Other Methods) -->
+    <section id="why-this-method">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2>Why DenseNet-121? (Architecture Comparison & Justification)</h2>
+      </div>
+
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Why did we specifically choose DenseNet-121 over ResNet, VGG, Vision Transformers, or training from scratch? Here is the technical breakdown:
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Architecture / Method</th>
+              <th>Parameter Count</th>
+              <th>Feature Reuse</th>
+              <th>Grad-CAM Quality</th>
+              <th>Medical Suitability</th>
+              <th>Our Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DenseNet-121 (Our Choice)</strong></td>
+              <td>~7.0 Million (Light)</td>
+              <td>Direct dense connectivity across all layers</td>
+              <td><span class="badge badge-win">Pristine & Localized</span></td>
+              <td>State-of-the-art for radiograph triage (CheXNet standard)</td>
+              <td><span class="badge badge-win">Selected & Deployed</span></td>
+            </tr>
+            <tr>
+              <td><strong>ResNet-50</strong></td>
+              <td>~25.6 Million (3.6x larger)</td>
+              <td>Residual addition (element-wise sum)</td>
+              <td>Good, but slightly diffuse</td>
+              <td>Widely used, but higher compute footprint</td>
+              <td><span class="badge badge-alt">Good Alternative</span></td>
+            </tr>
+            <tr>
+              <td><strong>VGG-16</strong></td>
+              <td>~138 Million (20x larger)</td>
+              <td>None (sequential stacking)</td>
+              <td>Coarse feature maps</td>
+              <td>Prone to overfitting on small datasets; very slow</td>
+              <td><span class="badge badge-no">Rejected</span></td>
+            </tr>
+            <tr>
+              <td><strong>Vision Transformer (ViT-B/16)</strong></td>
+              <td>~86 Million (12x larger)</td>
+              <td>Self-attention patch tokens</td>
+              <td>Attention rollout (noisy without 100k+ data)</td>
+              <td>Lacks inductive bias; requires massive dataset pretraining</td>
+              <td><span class="badge badge-no">Too Heavy for Edge</span></td>
+            </tr>
+            <tr>
+              <td><strong>Training From Scratch (No Pretraining)</strong></td>
+              <td>Any</td>
+              <td>N/A</td>
+              <td>Poor (random filters initially)</td>
+              <td>Overfits in 5 epochs on small datasets; requires 500k+ images</td>
+              <td><span class="badge badge-no">Inefficient</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-top: 1.5rem;">
+        <div class="card">
+          <div class="card-title">🔗 1. The Power of Dense Connections</div>
+          <p>
+            In standard networks (like VGG or ResNet), information passes strictly from layer $L$ to layer $L+1$.
+          </p>
+          <p>
+            In <strong>DenseNet</strong>, every layer receives the feature maps of <em>all preceding layers</em> as inputs:
+          </p>
+          <div class="math-callout">
+            <code>x_l = H_l([x_0, x_1, x_2, ..., x_{l-1}])</code>
+          </div>
+          <p>
+            <strong>Why this matters for X-rays:</strong> Low-level edges (rib contours, bone borders) and high-level patterns (diffuse lung consolidation) are preserved and reused throughout the entire network without vanishing gradients.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔍 2. Perfect Compatibility with Grad-CAM</div>
+          <p>
+            Grad-CAM creates heatmaps by taking gradients of the target class score relative to convolutional feature maps in the final layer (<code>denseblock4</code>).
+          </p>
+          <p>
+            Because DenseNet retains rich spatial representations right up to the global average pooling layer, Grad-CAM produces <strong>crisp, focal heatmaps that highlight true lung consolidation</strong> rather than irrelevant image borders or hospital text markers.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Step-by-Step Guide to Train From Scratch -->
+    <section id="step-by-step">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2>How to Train the Models From Scratch (Hands-On Guide)</h2>
+      </div>
+
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">
+        You can train RadiNova AI models on your local machine (if you have Python) or on a free Google Colab GPU.
+      </p>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('local-train')">💻 Option A: Train Locally</button>
+        <button class="tab-btn" onclick="switchTab('colab-train')">☁️ Option B: Free Google Colab GPU</button>
+      </div>
+
+      <!-- Tab 1: Local Training -->
+      <div id="local-train" class="tab-content active">
+        <div class="card">
+          <div class="card-title">Step 1: Install Python Dependencies</div>
+          <p>Ensure Python 3.10+ is installed, then install the required deep learning packages:</p>
+          <div class="code-box">
+            <div class="code-header">Terminal / Command Prompt</div>
+            <div class="code-content">
+              <pre>pip install torch torchvision numpy pandas pillow opencv-python fastapi uvicorn reportlab</pre>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top: 1.5rem;">Step 2: Prepare the 80/10/10 Dataset Manifest</div>
+          <p>Place your raw X-ray images in <code>datasets/chest_xray/</code> and run the preparation script:</p>
+          <div class="code-box">
+            <div class="code-header">Terminal</div>
+            <div class="code-content">
+              <pre><span class="com"># Runs 80/10/10 stratified split with seed=42</span>
+python datasets/prep_chest_xray.py
+
+<span class="com"># Output will be generated at datasets/chest_xray_manifest.csv</span></pre>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top: 1.5rem;">Step 3: Execute Model Training</div>
+          <p>Launch the 2-stage DenseNet-121 training pipeline:</p>
+          <div class="code-box">
+            <div class="code-header">Terminal</div>
+            <div class="code-content">
+              <pre><span class="com"># Train Chest X-ray model</span>
+python model/train_chest.py --epochs 10 --batch-size 16 --lr 1e-4
+
+<span class="com"># Train Limb Fracture model</span>
+python model/train_limb.py --epochs 10 --batch-size 16 --lr 1e-4</pre>
+            </div>
+          </div>
+
+          <div class="card-title" style="margin-top: 1.5rem;">Step 4: Verify Grad-CAM Heatmaps</div>
+          <p>Test that the trained checkpoint generates clear, focused heatmaps on test images:</p>
+          <div class="code-box">
+            <div class="code-header">Terminal</div>
+            <div class="code-content">
+              <pre>python model/test_gradcam.py</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Colab Training -->
+      <div id="colab-train" class="tab-content">
+        <div class="card">
+          <div class="card-title">Google Colab 1-Click GPU Training Workflow</div>
+          <p>If your computer doesn't have an NVIDIA GPU, you can train in ~5 minutes for free on Google Colab:</p>
+          <ol style="margin-left: 1.5rem; color: var(--text-muted); line-height: 1.8; font-size: 0.95rem;">
+            <li>Open Google Colab (<a href="https://colab.research.google.com" target="_blank" style="color: var(--accent-cyan);">colab.research.google.com</a>).</li>
+            <li>Click <strong>Upload Notebook</strong> and select <code>model/notebooks/RadiNova_Chest_Training_Colab.ipynb</code> from this project.</li>
+            <li>Go to <strong>Runtime &rarr; Change runtime type &rarr; Select T4 GPU</strong>.</li>
+            <li>Click <strong>Runtime &rarr; Run all</strong>.</li>
+            <li>The notebook automatically downloads the dataset, runs the 80/10/10 split, trains DenseNet-121, evaluates sensitivity, and generates sample Grad-CAM visualizations.</li>
+            <li>Download the final <code>chest_densenet121.pth</code> weights file and place it inside your local <code>model/weights/</code> folder!</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: Frequently Asked Questions -->
+    <section id="faq">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2>Frequently Asked Questions (FAQ)</h2>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Can RadiNova AI work if my computer has no internet access?</div>
+        <div class="faq-a">
+          Yes! The PyTorch DenseNet-121 computer vision models, Grad-CAM heatmap generator, and clinical guidance rules run 100% locally on your machine. For plain-English text explanations, if no internet or LLM API key is available, the backend automatically uses an offline, evidence-grounded rule template engine so the app never crashes.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">What is Grad-CAM in simple non-technical terms?</div>
+        <div class="faq-a">
+          Grad-CAM is like a highlighter pen for AI. Instead of just giving a percentage score, it looks at the internal neurons that made the decision and colors the exact pixels on the X-ray red/yellow where it spotted signs of infection or bone fractures.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How does RadiNova AI prevent hallucinating medical facts?</div>
+        <div class="faq-a">
+          All diagnostic labels come strictly from the deterministic PyTorch computer vision model, and all clinical recommendations are pulled directly from a structured evidence database (<code>rules/clinical_guidance.json</code>). The LLM is only used to format and translate these verified findings into patient-friendly language with strict clinical hedging.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">How do I start the complete web application right now?</div>
+        <div class="faq-a">
+          Start the backend with <code>python -m uvicorn backend.main:app --port 8000 --reload</code>, then in another terminal enter <code>cd frontend &amp;&amp; npm run dev</code>, and open <code>http://localhost:5173</code> in your browser!
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>RadiNova AI — Academic & Research Clinical Decision Support Prototype.</p>
+    <p style="margin-top: 0.35rem; color: #4b5563;">Built with PyTorch, DenseNet-121, Grad-CAM, FastAPI, React & Swiss Design System.</p>
+  </footer>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    function switchTab(tabId) {
+      // Deactivate all tabs and contents
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      // Activate clicked tab
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+    }
+
+    // Toggle FAQ accordions
+    document.querySelectorAll('.faq-q').forEach(question => {
+      question.addEventListener('click', () => {
+        const item = question.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>

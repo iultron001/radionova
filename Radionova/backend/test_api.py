@@ -50,7 +50,7 @@ def test_predict_chest():
     return data
 
 def test_predict_limb():
-    print("\n[3/6] Testing POST /predict/limb...")
+    print("\n[3/7] Testing POST /predict/limb...")
     img = Image.new("RGB", (256, 256), color=(40, 40, 40))
     buf = io.BytesIO()
     img.save(buf, format="JPEG")
@@ -67,8 +67,26 @@ def test_predict_limb():
     assert "gradcam_overlay" in data
     print(f"      Prediction: {data['prediction']} ({data['confidence']*100:.1f}%), Grad-CAM: True")
 
+def test_predict_mri():
+    print("\n[4/7] Testing POST /predict/mri...")
+    img = Image.new("RGB", (256, 256), color=(20, 20, 20))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+    
+    response = client.post(
+        "/predict/mri",
+        files={"file": ("test_mri.jpg", buf, "image/jpeg")}
+    )
+    assert response.status_code == 200, f"Predict MRI failed: {response.text}"
+    data = response.json()
+    assert data["modality"] == "mri"
+    assert "prediction" in data
+    assert "gradcam_overlay" in data
+    print(f"      [MRI] Prediction: {data['prediction']} ({data['confidence']*100:.1f}%), Grad-CAM: True")
+
 def test_explain_modalities():
-    print("\n[4/6] Testing POST /explain/{modality} for blood, mri, ecg, ct...")
+    print("\n[5/7] Testing POST /explain/{modality} for blood, mri, ecg, ct...")
     modalities = ["blood", "mri", "ecg", "ct"]
     sample_text = "WBC: 7.2 x10^9/L, Hemoglobin: 14.5 g/dL, Platelets: 240 x10^9/L, Creatinine: 0.9 mg/dL"
     
@@ -123,6 +141,7 @@ if __name__ == "__main__":
     test_health()
     chest_result = test_predict_chest()
     test_predict_limb()
+    test_predict_mri()
     test_explain_modalities()
     test_assistant()
     test_report(chest_result)

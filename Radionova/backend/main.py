@@ -13,7 +13,12 @@ if str(ROOT_DIR) not in sys.path:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
-from backend.routes import predict, explain, assistant, report, health
+from backend.routes import predict, explain, assistant, report, health, gemini_chat
+from backend.api.v1 import api_v1_router
+from backend.db.database import init_db
+
+# Initialize database schema
+init_db()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -32,12 +37,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API Routers
+# Include API Routers (v1 and root routes)
+app.include_router(api_v1_router)
 app.include_router(health.router)
 app.include_router(predict.router)
 app.include_router(explain.router)
 app.include_router(assistant.router)
 app.include_router(report.router)
+app.include_router(gemini_chat.router)
 
 @app.get("/")
 async def root():

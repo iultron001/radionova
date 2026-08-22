@@ -10,7 +10,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({ guidance }) => {
   return (
     <div className="guidance-box">
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-        <ShieldCheck size={16} />
+        <ShieldCheck size={16} style={{ color: 'var(--accent)' }} />
         <h3 className="guidance-title">Evidence-Grounded Clinical Decision Support</h3>
       </div>
 
@@ -18,7 +18,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({ guidance }) => {
 
       {guidance.differential_considerations && guidance.differential_considerations.length > 0 && (
         <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--text-primary)' }}>
             Differential Considerations
           </div>
           <ul className="guidance-list">
@@ -31,7 +31,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({ guidance }) => {
 
       {guidance.recommended_followup && guidance.recommended_followup.length > 0 && (
         <div>
-          <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px', color: 'var(--text-primary)' }}>
             Recommended Diagnostic Follow-Up
           </div>
           <ul className="guidance-list">
@@ -41,6 +41,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({ guidance }) => {
           </ul>
         </div>
       )}
+
     </div>
   );
 };

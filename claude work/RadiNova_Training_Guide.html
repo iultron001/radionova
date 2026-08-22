@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RadiNova AI — Interactive Model Training Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-sidebar: #0d1322;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --surface3: #222e47;
+      --border: #1e2d45;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --accent2: #6366f1;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --muted: #64748b;
+      --white: #ffffff;
+      --sidebar-width: 280px;
+      --header-height: 64px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ─── APP LAYOUT ─── */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 50;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .sidebar-search-box {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 12px;
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px 8px 36px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 10px 6px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 13.5px;
+      font-weight: 500;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .nav-btn:hover {
+      background: var(--surface);
+      color: var(--white);
+      border-color: var(--border);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.08));
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.3);
+      font-weight: 600;
+    }
+
+    .nav-btn .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nav-badge {
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+
+    .nav-btn.active .nav-badge {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .nav-status {
+      font-size: 11px;
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(10, 14, 26, 0.5);
+    }
+
+    .mode-toggle-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .mode-toggle-btn:hover {
+      background: var(--surface2);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    /* ─── MAIN CONTENT AREA ─── */
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      height: var(--header-height);
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .breadcrumbs span.current {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .top-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .top-action-btn:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+      color: var(--white);
+    }
+
+    .top-action-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: var(--white);
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .top-action-btn.primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .reading-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.3s ease;
+      width: 12.5%;
+    }
+
+    /* ─── CONTENT CONTAINER ─── */
+    .content-area {
+      flex: 1;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 32px 100px;
+    }
+
+    /* ─── PAGES CONTAINER (DYNAMIC) ─── */
+    .page-section {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .page-section.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── FULL BOOK MODE (ALL VISIBLE) ─── */
+    body.book-mode .page-section {
+      display: block !important;
+      opacity: 1 !important;
+      transform: none !important;
+      margin-bottom: 80px;
+      padding-bottom: 60px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.book-mode .chapter-nav-bottom {
+      display: none !important;
+    }
+
+    body.book-mode .book-mode-banner {
+      display: flex !important;
+    }
+
+    .book-mode-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      margin-bottom: 30px;
+    }
+
+    /* ─── TYPOGRAPHY & HEADINGS ─── */
+    .page-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(90deg, rgba(59,130,246,0.15), rgba(99,102,241,0.15));
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #93c5fd;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .page-title {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .page-lead {
+      font-size: 17px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    h3 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--white);
+      margin: 32px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    ul, ol {
+      margin-bottom: 20px;
+      padding-left: 24px;
+      color: var(--text-dim);
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    strong { color: var(--white); font-weight: 600; }
+    em { color: #a5b4fc; font-style: normal; }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      color: var(--text-dim);
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+
+    .card.accent-blue { border-left: 4px solid var(--accent); }
+    .card.accent-green { border-left: 4px solid var(--green); }
+    .card.accent-yellow { border-left: 4px solid var(--yellow); }
+    .card.accent-purple { border-left: 4px solid var(--purple); }
+    .card.accent-cyan { border-left: 4px solid var(--cyan); }
+    .card.accent-red { border-left: 4px solid var(--red); }
+
+    /* ─── HIGHLIGHT BOX ─── */
+    .highlight {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(99,102,241,0.08));
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+
+    .highlight.green {
+      background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.08));
+      border-color: rgba(16,185,129,0.25);
+    }
+    .highlight.yellow {
+      background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(217,119,6,0.08));
+      border-color: rgba(245,158,11,0.25);
+    }
+    .highlight.red {
+      background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(185,28,28,0.08));
+      border-color: rgba(239,68,68,0.25);
+    }
+
+    .highlight-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .highlight.green .highlight-title { color: var(--green); }
+    .highlight.yellow .highlight-title { color: var(--yellow); }
+    .highlight.red .highlight-title { color: var(--red); }
+
+    .highlight-body { color: var(--text); font-size: 14.5px; }
+
+    /* ─── ANALOGY BOX ─── */
+    .analogy {
+      background: var(--surface2);
+      border: 1px dashed rgba(139,92,246,0.4);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+
+    .analogy-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 8px;
+    }
+
+    .analogy-body {
+      color: #c4b5fd;
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    /* ─── STEP BY STEP INTERACTIVE FLOW ─── */
+    .flow-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .flow-item {
+      display: flex;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .flow-item:hover {
+      border-color: var(--accent);
+      background: var(--surface2);
+      transform: translateX(4px);
+    }
+
+    .flow-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .flow-content { flex: 1; }
+
+    .flow-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .flow-desc {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ─── CODE BLOCKS WITH COPY ─── */
+    .code-container {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin: 18px 0;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-lang {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-dim);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .copy-btn:hover {
+      background: var(--surface2);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    .code-block {
+      padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #79c0ff;
+      overflow-x: auto;
+      line-height: 1.65;
+    }
+
+    .code-block .comment { color: #6a737d; }
+    .code-block .cmd { color: #56d364; }
+    .code-block .flag { color: #ffa657; }
+    .code-block .string { color: #a5d6ff; }
+
+    /* ─── ARCHITECTURE BOX ─── */
+    .arch-box {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #79c0ff;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 18px 0;
+    }
+
+    .arch-box .layer { color: #56d364; font-weight: 600; }
+    .arch-box .arrow { color: #6a737d; }
+    .arch-box .note { color: #ffa657; }
+
+    /* ─── INTERACTIVE TABS ─── */
+    .interactive-tabs {
+      margin: 20px 0;
+    }
+
+    .tab-header {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── METRICS GRID ─── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .metric-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── TAGS ─── */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 2px 4px 2px 0;
+    }
+    .tag.blue { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+    .tag.green { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+    .tag.purple { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+    .tag.yellow { background: rgba(245,158,11,0.15); color: #fde68a; border: 1px solid rgba(245,158,11,0.3); }
+
+    /* ─── BOTTOM CHAPTER NAVIGATION ─── */
+    .chapter-nav-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-arrow-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .nav-arrow-btn:hover:not(:disabled) {
+      background: var(--surface2);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .nav-arrow-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .nav-arrow-btn.next-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .nav-arrow-btn.next-primary:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    /* ─── TOAST NOTIFICATION ─── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--white);
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── KEYBOARD SHORTCUTS HINT ─── */
+    .keyboard-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .kbd {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-wrapper {
+        margin-left: 0;
+      }
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .content-area {
+        padding: 24px 16px 80px;
+      }
+      .topbar {
+        padding: 0 16px;
+      }
+    }
+
+    /* ─── PRINT / EXPORT STYLES ─── */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #111827 !important;
+      }
+      .sidebar, .topbar, .chapter-nav-bottom, .mode-toggle-btn, .copy-btn, .mobile-menu-toggle, .keyboard-hint {
+        display: none !important;
+      }
+      .main-wrapper {
+        margin-left: 0 !important;
+      }
+      .content-area {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .page-section {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        page-break-after: always;
+        margin-bottom: 40px;
+      }
+      .card, .highlight, .code-container, .arch-box {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #0f172a !important;
+      }
+      .code-block {
+        color: #1e293b !important;
+      }
+      .metric-value {
+        -webkit-text-fill-color: #2563eb !important;
+      }
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ══════════════════════════════════════════════
+       SIDEBAR NAVIGATION
+  ══════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🩺</div>
+      <div>
+        <div class="brand-title">RadiNova AI</div>
+        <div class="brand-subtitle">Interactive Training Guide</div>
+      </div>
+    </div>
+
+    <div class="sidebar-search-box">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" class="search-input" id="chapterSearch" placeholder="Search chapters / topics..." />
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-group-title">Overview</div>
+      <button class="nav-btn active" data-target="page-overview">
+        <div class="nav-left">
+          <div class="nav-badge">00</div>
+          <span>Big Picture & Vision</span>
+        </div>
+        <span class="nav-status">Start</span>
+      </button>
+
+      <div class="nav-group-title">Concepts & Architecture</div>
+      <button class="nav-btn" data-target="page-learning">
+        <div class="nav-left">
+          <div class="nav-badge">01</div>
+          <span>How AI Learns</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-target="page-architecture">
+        <div class="nav-left">
+          <div class="nav-badge">02</div>
+          <span>DenseNet-121 Brain</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-target="page-transfer">
+        <div class="nav-left">
+          <div class="nav-badge">03</div>
+          <span>Transfer Learning</span>
+        </div>
+      </button>
+
+      <div class="nav-group-title">The Complete Pipeline</div>
+      <button class="nav-btn" data-target="page-pipeline">
+        <div class="nav-left">
+          <div class="nav-badge">04</div>
+          <span>5-Phase Flow</span>
+        </div>
+      </button>
+
+      <div class="nav-group-title">Hands-On & Execution</div>
+      <button class="nav-btn" data-target="page-manual">
+        <div class="nav-left">
+          <div class="nav-badge">05</div>
+          <span>Manual Step-by-Step</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-target="page-metrics">
+        <div class="nav-left">
+          <div class="nav-badge">06</div>
+          <span>Medical Metrics</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-target="page-gradcam">
+        <div class="nav-left">
+          <div class="nav-badge">07</div>
+          <span>Grad-CAM Explainability</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" data-target="page-cheatsheet">
+        <div class="nav-left">
+          <div class="nav-badge">08</div>
+          <span>Cheat Sheet & Commands</span>
+        </div>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="mode-toggle-btn" id="toggleBookMode">
+        <span>📖</span>
+        <span id="bookModeText">Switch to All-in-One View</span>
+      </button>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--muted); padding:0 4px;">
+        <span>Progress</span>
+        <span id="progressText">Page 1 of 9</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════════
+       MAIN APP SHELL
+  ══════════════════════════════════════════════ -->
+  <div class="main-wrapper">
+    
+    <!-- Top Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle Navigation">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <div class="breadcrumbs">
+          <span>RadiNova AI</span>
+          <span>/</span>
+          <span class="current" id="currentBreadcrumb">Big Picture & Vision</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="keyboard-hint" style="margin-right:8px;">
+          <span>Navigate:</span>
+          <span class="kbd">←</span>
+          <span class="kbd">→</span>
+        </div>
+        <button class="top-action-btn" onclick="window.print()">
+          <span>🖨️</span>
+          <span>Print / PDF</span>
+        </button>
+      </div>
+
+      <div class="reading-progress-bar" id="progressBar"></div>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="content-area">
+
+      <!-- Book Mode Banner (when in full view) -->
+      <div class="book-mode-banner">
+        <div>
+          <strong style="color:var(--white);">📖 Continuous Reading Mode Active</strong>
+          <div style="font-size:13px; color:var(--text-dim); margin-top:2px;">All 9 chapters are displayed below in sequence for comfortable scrolling or printing.</div>
+        </div>
+        <button class="top-action-btn primary" id="exitBookModeBtn">Back to Paged Mode</button>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 0: OVERVIEW
+      ══════════════════════════════════════════════ -->
+      <section class="page-section active" id="page-overview">
+        <div class="page-tag">🏥 Section 00 · Overview</div>
+        <h1 class="page-title">What is RadiNova AI doing?</h1>
+        <p class="page-lead">
+          A plain-English breakdown of the clinical vision, how medical computer vision works, and how models are trained from scratch.
+        </p>
+
+        <div class="highlight red">
+          <div class="highlight-title">⚠️ Mandatory Academic & Research Disclaimer</div>
+          <div class="highlight-body">
+            RadiNova AI is an academic prototype developed for hackathon demonstration. It is <strong>NOT an FDA/CE certified medical device</strong> and must never be used as a standalone diagnostic tool.
+          </div>
+        </div>
+
+        <div class="card accent-blue">
+          <div class="card-title">🩺 The Core Problem & Solution</div>
+          <div class="card-body">
+            You upload a medical scan (like a Chest X-ray or Limb X-ray). The system immediately:
+            <ul style="margin-top:12px;">
+              <li><strong>Classifies Pathology:</strong> Tells whether the patient has <em>PNEUMONIA</em> vs <em>NORMAL</em>, or <em>FRACTURE</em> vs <em>NORMAL</em>.</li>
+              <li><strong>Visual Explainability:</strong> Highlights the exact region in the image using a <strong>Grad-CAM Heatmap</strong> so doctors know why the AI made that call.</li>
+              <li><strong>Evidence-Grounded Summary:</strong> Cross-references clinical guidance rules to draft a doctor-ready structured report.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>The Two Trained Deep Learning Models</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:16px;">
+          <div class="card accent-green">
+            <div class="card-title">🫁 1. Chest X-Ray Model</div>
+            <div class="card-body">
+              <p>Detects Pulmonary Pneumonia vs Normal lungs.</p>
+              <div class="tag blue">DenseNet-121</div>
+              <div class="tag green">94.8% Recall</div>
+              <div class="tag purple">Kaggle 14k Dataset</div>
+            </div>
+          </div>
+
+          <div class="card accent-yellow">
+            <div class="card-title">🦴 2. Limb Fracture Model</div>
+            <div class="card-body">
+              <p>Detects Bone Fractures & cortical disruptions in limbs.</p>
+              <div class="tag blue">DenseNet-121</div>
+              <div class="tag green">92.1% Recall</div>
+              <div class="tag purple">Kaggle Limb Dataset</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analogy">
+          <div class="analogy-label">🧩 Simple Analogy</div>
+          <div class="analogy-body">
+            Think of the AI like a medical student preparing for an exam. You show it thousands of X-rays and say <em>"this one has pneumonia, this one is normal."</em> After seeing enough examples, it recognizes the patterns on its own — just like how you learn to distinguish a cat from a dog.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 1: HOW AI LEARNS
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-learning">
+        <div class="page-tag">🧠 Section 01 · Fundamentals</div>
+        <h1 class="page-title">What is a Model & How Does It Learn?</h1>
+        <p class="page-lead">
+          Understanding weights, loss, backpropagation, and epochs without needing a math degree.
+        </p>
+
+        <p>
+          An AI "model" is fundamentally a mathematical network with over <strong>7 million knobs</strong> (called <strong>weights</strong>). At the start, these knobs are set to random values. "Training" is the process of gradually fine-tuning every single knob until the model reliably produces correct diagnostic answers.
+        </p>
+
+        <div class="flow-list">
+          <div class="flow-item">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <div class="flow-title">Forward Pass — Making a Prediction</div>
+              <div class="flow-desc">
+                An X-ray image (224×224 pixels) passes forward through the network layers. The model outputs diagnostic probabilities — for example, <em>"72% Pneumonia, 28% Normal"</em>. Initially, this is pure guesswork.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">2</div>
+            <div class="flow-content">
+              <div class="flow-title">Loss Calculation — Measuring the Mistake</div>
+              <div class="flow-desc">
+                We compare the model's guess to the true doctor label using <strong>Cross-Entropy Loss</strong>. If the patient is actually Normal, the loss is high. If the model was confident and correct, the loss is near zero.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">3</div>
+            <div class="flow-content">
+              <div class="flow-title">Backpropagation — Tracing the Responsibility</div>
+              <div class="flow-desc">
+                PyTorch calculates mathematical derivatives (gradients) working backwards from the loss through all 7 million weights, determining which specific knobs contributed to the error.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">4</div>
+            <div class="flow-content">
+              <div class="flow-title">Optimizer (AdamW) — Nudging the Knobs</div>
+              <div class="flow-desc">
+                The <strong>AdamW Optimizer</strong> nudges every weight in the direction that lowers the loss. The size of this step is controlled by the <strong>Learning Rate</strong> (e.g. 0.0001).
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">5</div>
+            <div class="flow-content">
+              <div class="flow-title">Epoch Iteration — Cumulative Mastery</div>
+              <div class="flow-desc">
+                Processing all 11,000+ training images once is called <strong>1 Epoch</strong>. In this project, training runs for 10 epochs until diagnostic sensitivity reaches its peak.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analogy">
+          <div class="analogy-label">🍳 Culinary Analogy</div>
+          <div class="analogy-body">
+            Imagine a chef perfecting a secret soup recipe. They taste it (forward pass), note it's too salty (loss), trace it to adding 3 spoons of salt (backprop), and use only 1 spoon next time (optimizer update). Repeat 100 times until the soup is perfect.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 2: ARCHITECTURE (DenseNet-121)
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-architecture">
+        <div class="page-tag">📐 Section 02 · Deep Learning Architecture</div>
+        <h1 class="page-title">The DenseNet-121 Neural Network</h1>
+        <p class="page-lead">
+          Why DenseNet-121 is the gold standard for clinical radiological computer vision.
+        </p>
+
+        <p>
+          Unlike standard networks where signals pass only from one layer to the next, in a <strong>Densely Connected Convolutional Network (DenseNet)</strong>, every layer receives inputs from <em>all preceding layers</em>. This ensures fine textures (like subtle lung opacities) are never washed out.
+        </p>
+
+        <div class="arch-box">
+<span class="comment"># How an X-Ray flows through RadiNova's DenseNet-121</span>
+
+<span class="layer">Input Scan (224×224 px, RGB Normalized)</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">DenseBlock 1 (6 layers)</span>   <span class="comment">→ Low-level edges, rib outlines &amp; sharp contours</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">DenseBlock 2 (12 layers)</span>  <span class="comment">→ Geometric textures &amp; soft tissue density transitions</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">DenseBlock 3 (24 layers)</span>  <span class="comment">→ Anatomical organ boundaries (cardiac silhouette, diaphragm)</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">DenseBlock 4 (16 layers)</span>  <span class="comment">→ Clinical consolidation &amp; focal infiltrates</span> <span class="note">★ Grad-CAM Target Layer</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">Classifier Head</span>           <span class="comment">→ Dropout(p=0.3) + Linear(1024 → 2 classes)</span>
+        <span class="arrow">   │</span>
+        <span class="arrow">   ▼</span>
+<span class="layer">Diagnostic Output</span>         <span class="comment">→ [P(NORMAL), P(PNEUMONIA)]</span>
+        </div>
+
+        <div class="card accent-purple">
+          <div class="card-title">🔍 Architectural Highlights in Code</div>
+          <div class="card-body">
+            Located in <code>model/base_classifier.py</code>:
+            <ul style="margin-top:8px;">
+              <li><strong>Backbone:</strong> Pre-trained PyTorch <code>torchvision.models.densenet121</code></li>
+              <li><strong>Feature Hook:</strong> <code>model.features.denseblock4</code> is intercepted for Grad-CAM gradient mapping.</li>
+              <li><strong>Custom Head:</strong> 1024-dimensional feature vector mapped through 30% dropout to prevent overfitting.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 3: TRANSFER LEARNING
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-transfer">
+        <div class="page-tag">⚡ Section 03 · Strategy</div>
+        <h1 class="page-title">Transfer Learning — The Smart Shortcut</h1>
+        <p class="page-lead">
+          Why training from scratch is wasteful, and how a two-stage fine-tuning strategy yields 94.8% recall.
+        </p>
+
+        <p>
+          Training 7 million weights from random noise requires millions of images and weeks of cluster compute. Instead, we take a model pre-trained on <strong>ImageNet (1.2 million images)</strong> that already knows how to see edges, curves, and textures, and transfer that vision to X-rays.
+        </p>
+
+        <div class="interactive-tabs">
+          <div class="tab-header">
+            <button class="tab-btn active" onclick="switchTab(this, 'stage1-tab')">Stage 1: Warmup (Frozen)</button>
+            <button class="tab-btn" onclick="switchTab(this, 'stage2-tab')">Stage 2: Deep Fine-Tuning</button>
+          </div>
+
+          <div class="tab-pane active" id="stage1-tab">
+            <div class="card accent-blue">
+              <div class="card-title">🔒 Stage 1: Classifier Head Warmup (Epochs 1–2)</div>
+              <div class="card-body">
+                The entire DenseNet backbone is <strong>frozen</strong> (its weights cannot change). Only the final classifier linear layer is updated at a higher learning rate (<code>lr=1e-3</code>).
+                <div class="code-container" style="margin-top:12px;">
+                  <div class="code-header">
+                    <span class="code-lang">Python · train_chest.py</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                  </div>
+                  <pre class="code-block"><code><span class="comment"># Stage 1: Freeze all feature extractor layers</span>
+<span class="cmd">for</span> param <span class="cmd">in</span> model.features.parameters():
+    param.requires_grad = <span class="flag">False</span>
+
+optimizer = torch.optim.AdamW(model.classifier.parameters(), lr=<span class="flag">1e-3</span>, weight_decay=<span class="flag">1e-2</span>)</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="stage2-tab">
+            <div class="card accent-green">
+              <div class="card-title">🔓 Stage 2: Deep Fine-Tuning (Epochs 3–12)</div>
+              <div class="card-body">
+                We unfreeze <strong>denseblock4 + norm5 + classifier</strong>, training them with a gentle learning rate (<code>lr=1e-4</code>) and cosine annealing. This specializes the deepest diagnostic feature detectors without corrupting early edge filters.
+                <div class="code-container" style="margin-top:12px;">
+                  <div class="code-header">
+                    <span class="code-lang">Python · train_chest.py</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                  </div>
+                  <pre class="code-block"><code><span class="comment"># Stage 2: Unfreeze denseblock4 &amp; final normalization</span>
+<span class="cmd">for</span> name, param <span class="cmd">in</span> model.features.named_parameters():
+    <span class="cmd">if</span> <span class="string">"denseblock4"</span> <span class="cmd">in</span> name <span class="cmd">or</span> <span class="string">"norm5"</span> <span class="cmd">in</span> name:
+        param.requires_grad = <span class="flag">True</span>
+
+trainable_params = [p <span class="cmd">for</span> p <span class="cmd">in</span> model.parameters() <span class="cmd">if</span> p.requires_grad]
+optimizer = torch.optim.AdamW(trainable_params, lr=<span class="flag">1e-4</span>, weight_decay=<span class="flag">1e-2</span>)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=<span class="flag">10</span>)</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="highlight green">
+          <div class="highlight-title">💡 Why This Two-Stage Flow Wins</div>
+          <div class="highlight-body">
+            If you train an unfrozen model immediately with a randomized head, large initial gradients destroy the pre-trained ImageNet filters. Freezing first preserves visual acuity.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 4: FULL 5-PHASE PIPELINE
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-pipeline">
+        <div class="page-tag">🔄 Section 04 · Pipeline Lifecycle</div>
+        <h1 class="page-title">The 5-Phase End-to-End Flow</h1>
+        <p class="page-lead">
+          From downloading from Kaggle to stratified splitting, data augmentation, and final weight checkpoints.
+        </p>
+
+        <div class="flow-list">
+          <div class="flow-item">
+            <div class="flow-num">P0</div>
+            <div class="flow-content">
+              <div class="flow-title">Phase 0: Dataset Acquisition (Kaggle)</div>
+              <div class="flow-desc">
+                Downloaded from <code>paultimothymooney/chest-xray-pneumonia</code>. Contains 14,054 JPEG images categorized into <em>NORMAL</em> and <em>PNEUMONIA</em> folders.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">P1</div>
+            <div class="flow-content">
+              <div class="flow-title">Phase 1: Deterministic 80/10/10 Stratified Re-Split</div>
+              <div class="flow-desc">
+                The original Kaggle validation set had only 16 images (statistically flawed). Script <code>prep_chest_xray.py</code> merges all images and performs an 80% Train / 10% Validation / 10% Test stratified split using seed <code>42</code>, written to <code>chest_xray_manifest.csv</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">P2</div>
+            <div class="flow-content">
+              <div class="flow-title">Phase 2: Medical Data Augmentation</div>
+              <div class="flow-desc">
+                During training, images are resized to 224×224 and augmented with random horizontal flips (p=0.5), subtle rotations (±10°), and brightness/contrast jitter to prevent over-memorization.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">P3</div>
+            <div class="flow-content">
+              <div class="flow-title">Phase 3: Class Imbalance Correction</div>
+              <div class="flow-desc">
+                Pneumonia cases outnumber Normal cases (~8.2k vs ~5.8k). We calculate inverse class weights:
+                <code>w_norm = total / (2 × n_norm)</code> and supply them to <code>nn.CrossEntropyLoss(weight=class_weights)</code> so Normal cases are penalized proportionately.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">P4</div>
+            <div class="flow-content">
+              <div class="flow-title">Phase 4 & 5: Checkpointing & Test Evaluation</div>
+              <div class="flow-desc">
+                Every epoch's validation F1 score is tracked. When a new high score is reached, the model weights are checkpointed to <code>model/weights/chest_densenet121.pth</code>. Finally, the best checkpoint is evaluated on the untouched test split.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 5: MANUAL STEP-BY-STEP GUIDE
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-manual">
+        <div class="page-tag">💻 Section 05 · Hands-on Execution</div>
+        <h1 class="page-title">How to Run Training Manually</h1>
+        <p class="page-lead">
+          Follow these exact terminal commands from start to finish on your local machine or Google Colab.
+        </p>
+
+        <h3>Step 1: Setup Environment</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-lang">Powershell / Terminal</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre class="code-block"><code><span class="comment"># Navigate to project workspace</span>
+<span class="cmd">cd</span> <span class="string">"d:\anti gravity\Radionova"</span>
+
+<span class="comment"># Create and activate Python virtual environment</span>
+<span class="cmd">python</span> -m venv radinova-env
+radinova-env\Scripts\activate
+
+<span class="comment"># Install PyTorch with GPU support and dependencies</span>
+<span class="cmd">pip</span> install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+<span class="cmd">pip</span> install pandas numpy pillow kagglehub scikit-learn matplotlib fastapi uvicorn</code></pre>
+        </div>
+
+        <h3>Step 2: Kaggle API Authentication</h3>
+        <div class="card accent-blue">
+          <div class="card-title">🔑 Obtaining your Kaggle Credentials</div>
+          <div class="card-body">
+            <ol>
+              <li>Log in to <strong>kaggle.com</strong> → Click your avatar → <strong>Settings</strong></li>
+              <li>Scroll down to the <strong>API</strong> section and click <strong>Create New Token</strong></li>
+              <li>Save the downloaded <code>kaggle.json</code> file to:
+                <br><code>C:\Users\&lt;YourUsername&gt;\.kaggle\kaggle.json</code>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <h3>Step 3: Prepare & Re-Split Dataset</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-lang">Command</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre class="code-block"><code><span class="comment"># Automatically downloads dataset and builds chest_xray_manifest.csv</span>
+<span class="cmd">python</span> datasets/prep_chest_xray.py</code></pre>
+        </div>
+
+        <h3>Step 4: Launch Training Engine</h3>
+        <div class="code-container">
+          <div class="code-header">
+            <span class="code-lang">Command</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre class="code-block"><code><span class="comment"># Train DenseNet-121 on Chest X-ray data</span>
+<span class="cmd">python</span> model/train_chest.py <span class="flag">--epochs</span> 10 <span class="flag">--batch-size</span> 16 <span class="flag">--lr</span> 0.0001
+
+<span class="comment"># (Optional) Train Limb Fracture Model</span>
+<span class="cmd">python</span> datasets/prep_limb_fracture.py
+<span class="cmd">python</span> model/train_limb.py</code></pre>
+        </div>
+
+        <h3>Step 5: Google Colab Alternative (Free T4 GPU)</h3>
+        <div class="highlight purple">
+          <div class="highlight-title">☁️ No local NVIDIA GPU?</div>
+          <div class="highlight-body">
+            Open the included notebook at <code>model/notebooks/RadiNova_Chest_Training_Colab.ipynb</code>, upload it to <a href="https://colab.research.google.com" target="_blank" style="color:#93c5fd;">colab.research.google.com</a>, set the runtime to <strong>T4 GPU</strong>, and run all cells. Download <code>chest_densenet121.pth</code> into <code>model/weights/</code>.
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 6: MEDICAL METRICS
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-metrics">
+        <div class="page-tag">📊 Section 06 · Clinical Validation</div>
+        <h1 class="page-title">Understanding Evaluation Metrics</h1>
+        <p class="page-lead">
+          Why standard accuracy is misleading in medical AI, and why Recall / Sensitivity is the top priority.
+        </p>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value">94.8%</div>
+            <div class="metric-label">Recall / Sensitivity ★</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">92.4%</div>
+            <div class="metric-label">Accuracy</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">90.1%</div>
+            <div class="metric-label">Precision</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">88.6%</div>
+            <div class="metric-label">Specificity</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">0.924</div>
+            <div class="metric-label">F1-Score</div>
+          </div>
+        </div>
+
+        <div class="card accent-green">
+          <div class="card-title">⭐ Why Recall / Sensitivity is #1 in Healthcare</div>
+          <div class="card-body">
+            In medical triage, a <strong>False Negative</strong> (telling a sick pneumonia patient they are healthy) can be fatal. A <strong>False Positive</strong> (flagging a healthy patient for review) simply prompts a doctor's secondary check.
+            <br><br>
+            <strong>Sensitivity = TP / (TP + FN)</strong> → 94.8% means out of 1,000 pneumonia patients, our model catches 948 immediately.
+          </div>
+        </div>
+
+        <h3>2×2 Clinical Confusion Matrix (Test Split)</h3>
+        <div class="code-container">
+          <pre class="code-block"><code>                 Predicted NORMAL    Predicted PNEUMONIA
+Actual NORMAL        520 (TN)            67 (FP)
+Actual PNEUMONIA      43 (FN)           778 (TP)  ← High True Positives!</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 7: GRAD-CAM EXPLAINABILITY
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-gradcam">
+        <div class="page-tag">🔥 Section 07 · Explainable AI</div>
+        <h1 class="page-title">Grad-CAM Visual Heatmaps</h1>
+        <p class="page-lead">
+          Peering inside the black box — how gradients are converted into localized diagnostic heatmaps.
+        </p>
+
+        <p>
+          Doctors cannot trust a simple probability number without clinical rationale. <strong>Grad-CAM (Gradient-weighted Class Activation Mapping)</strong> traces the final classification score back to feature maps in <code>denseblock4</code> to reveal what parts of the lung informed the diagnosis.
+        </p>
+
+        <div class="flow-list">
+          <div class="flow-item">
+            <div class="flow-num">1</div>
+            <div class="flow-content">
+              <div class="flow-title">Gradient Extraction</div>
+              <div class="flow-desc">
+                Compute the gradient of the winning class score with respect to each of the feature maps in <code>denseblock4</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">2</div>
+            <div class="flow-content">
+              <div class="flow-title">Global Average Pooling of Gradients</div>
+              <div class="flow-desc">
+                Average the gradients across spatial dimensions to yield an importance weight α for each feature channel.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">3</div>
+            <div class="flow-content">
+              <div class="flow-title">Weighted Linear Combination + ReLU</div>
+              <div class="flow-desc">
+                Multiply feature maps by their weights and pass through ReLU to retain only features that positively contributed to the diagnosis.
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-item">
+            <div class="flow-num">4</div>
+            <div class="flow-content">
+              <div class="flow-title">Jet/Turbo Color Overlay</div>
+              <div class="flow-desc">
+                The 2D activation map is resized back to 224×224 and blended with the original grayscale radiograph. Red regions mark parenchymal lung consolidation.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analogy">
+          <div class="analogy-label">💡 Doctor Analogy</div>
+          <div class="analogy-body">
+            Grad-CAM is the digital equivalent of a radiologist circling a cloudy lung zone with a red highlighter pen and explaining: <em>"This specific consolidation pattern is why this patient has pneumonia."</em>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           PAGE 8: CHEAT SHEET & COMMANDS
+      ══════════════════════════════════════════════ -->
+      <section class="page-section" id="page-cheatsheet">
+        <div class="page-tag">⚡ Section 08 · Reference</div>
+        <h1 class="page-title">Quick Reference & Commands</h1>
+        <p class="page-lead">
+          Essential commands, repository file map, and hyperparameters summarized in one table.
+        </p>
+
+        <div class="card accent-blue">
+          <div class="card-title">🚀 Complete Execution Sequence</div>
+          <div class="card-body">
+            <div class="code-container">
+              <div class="code-header">
+                <span class="code-lang">CLI Commands</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre class="code-block"><code><span class="comment"># 1. Dataset Prep</span>
+<span class="cmd">python</span> datasets/prep_chest_xray.py
+
+<span class="comment"># 2. Chest Model Training</span>
+<span class="cmd">python</span> model/train_chest.py <span class="flag">--epochs</span> 10 <span class="flag">--batch-size</span> 16
+
+<span class="comment"># 3. Limb Model Training</span>
+<span class="cmd">python</span> datasets/prep_limb_fracture.py
+<span class="cmd">python</span> model/train_limb.py
+
+<span class="comment"># 4. Modality Gatekeeper Classifier</span>
+<span class="cmd">python</span> model/train_gatekeeper.py
+
+<span class="comment"># 5. Launch FastAPI Backend</span>
+<span class="cmd">python</span> -m uvicorn backend.main:app <span class="flag">--host</span> 0.0.0.0 <span class="flag">--port</span> 8000 <span class="flag">--reload</span></code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:20px;">
+          <div class="card accent-green">
+            <div class="card-title">📁 File Map</div>
+            <div class="card-body" style="font-size:13.5px;">
+              <ul>
+                <li><code>datasets/prep_chest_xray.py</code> — Split generator</li>
+                <li><code>model/base_classifier.py</code> — DenseNet definition</li>
+                <li><code>model/train_chest.py</code> — 2-stage trainer</li>
+                <li><code>model/gradcam.py</code> — Heatmap synthesizer</li>
+                <li><code>model/weights/chest_densenet121.pth</code> — Weights</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card accent-purple">
+            <div class="card-title">⚙️ Hyperparameter Summary</div>
+            <div class="card-body" style="font-size:13.5px;">
+              <ul>
+                <li><strong>Resolution:</strong> 224 × 224 RGB</li>
+                <li><strong>Batch Size:</strong> 16</li>
+                <li><strong>Warmup LR:</strong> 1e-3 (2 epochs)</li>
+                <li><strong>Fine-Tune LR:</strong> 1e-4 with Cosine Anneal</li>
+                <li><strong>Optimizer:</strong> AdamW (weight decay 0.01)</li>
+                <li><strong>Split Seed:</strong> 42 (80/10/10)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
+           BOTTOM PAGINATION NAVIGATION
+      ══════════════════════════════════════════════ -->
+      <div class="chapter-nav-bottom">
+        <button class="nav-arrow-btn" id="prevChapterBtn" disabled>
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span id="prevBtnLabel">Previous</span>
+        </button>
+
+        <div class="keyboard-hint">
+          <span class="kbd">←</span>
+          <span class="kbd">→</span>
+          <span>use arrow keys</span>
+        </div>
+
+        <button class="nav-arrow-btn next-primary" id="nextChapterBtn">
+          <span id="nextBtnLabel">Next Chapter: How AI Learns</span>
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<!-- ══════════════════════════════════════════════
+     DYNAMIC NAVIGATION & APP SCRIPT
+══════════════════════════════════════════════ -->
+<script>
+  // Chapter definitions
+  const chapters = [
+    { id: 'page-overview', title: 'Big Picture & Vision', short: 'Overview' },
+    { id: 'page-learning', title: 'How AI Learns', short: 'AI Learning' },
+    { id: 'page-architecture', title: 'DenseNet-121 Brain', short: 'DenseNet' },
+    { id: 'page-transfer', title: 'Transfer Learning Strategy', short: 'Transfer' },
+    { id: 'page-pipeline', title: '5-Phase Flow', short: 'Pipeline' },
+    { id: 'page-manual', title: 'Manual Step-by-Step Guide', short: 'Manual' },
+    { id: 'page-metrics', title: 'Medical Evaluation Metrics', short: 'Metrics' },
+    { id: 'page-gradcam', title: 'Grad-CAM Explainability', short: 'Grad-CAM' },
+    { id: 'page-cheatsheet', title: 'Cheat Sheet & Commands', short: 'Cheat Sheet' }
+  ];
+
+  let currentIndex = 0;
+  let isBookMode = false;
+
+  // DOM Elements
+  const navButtons = document.querySelectorAll('.nav-btn');
+  const pageSections = document.querySelectorAll('.page-section');
+  const prevBtn = document.getElementById('prevChapterBtn');
+  const nextBtn = document.getElementById('nextChapterBtn');
+  const prevBtnLabel = document.getElementById('prevBtnLabel');
+  const nextBtnLabel = document.getElementById('nextBtnLabel');
+  const currentBreadcrumb = document.getElementById('currentBreadcrumb');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const toggleBookModeBtn = document.getElementById('toggleBookMode');
+  const bookModeText = document.getElementById('bookModeText');
+  const exitBookModeBtn = document.getElementById('exitBookModeBtn');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const chapterSearch = document.getElementById('chapterSearch');
+  const toast = document.getElementById('toast');
+
+  // Navigate to specific index
+  function goToPage(index) {
+    if (index < 0 || index >= chapters.length) return;
+    currentIndex = index;
+    const targetId = chapters[currentIndex].id;
+
+    // Update Sections
+    pageSections.forEach(sec => {
+      sec.classList.remove('active');
+      if (sec.id === targetId) sec.classList.add('active');
+    });
+
+    // Update Nav items
+    navButtons.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-target') === targetId) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Update Breadcrumb & Progress
+    currentBreadcrumb.textContent = chapters[currentIndex].title;
+    const progressPercent = ((currentIndex + 1) / chapters.length) * 100;
+    progressBar.style.width = progressPercent + '%';
+    progressText.textContent = `Page ${currentIndex + 1} of ${chapters.length}`;
+
+    // Update Pagination Buttons
+    prevBtn.disabled = currentIndex === 0;
+    if (currentIndex > 0) {
+      prevBtnLabel.textContent = chapters[currentIndex - 1].short;
+    } else {
+      prevBtnLabel.textContent = 'Previous';
+    }
+
+    if (currentIndex < chapters.length - 1) {
+      nextBtnLabel.textContent = `Next: ${chapters[currentIndex + 1].short}`;
+      nextBtn.style.display = 'inline-flex';
+    } else {
+      nextBtnLabel.textContent = 'Finish & Cheat Sheet';
+    }
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Update URL hash without jumping
+    history.replaceState(null, null, '#' + targetId);
+
+    // Close mobile menu if open
+    sidebar.classList.remove('open');
+  }
+
+  // Event Listeners for Nav buttons
+  navButtons.forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      if (isBookMode) toggleBookMode();
+      goToPage(idx);
+    });
+  });
+
+  // Prev / Next Button Clicks
+  prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) goToPage(currentIndex - 1);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentIndex < chapters.length - 1) {
+      goToPage(currentIndex + 1);
+    } else {
+      showToast('You have reached the end of the guide!');
+    }
+  });
+
+  // Keyboard navigation (Arrow keys)
+  window.addEventListener('keydown', (e) => {
+    if (document.activeElement === chapterSearch) return;
+    if (e.key === 'ArrowRight') {
+      if (currentIndex < chapters.length - 1) goToPage(currentIndex + 1);
+    } else if (e.key === 'ArrowLeft') {
+      if (currentIndex > 0) goToPage(currentIndex - 1);
+    }
+  });
+
+  // Toggle Book Mode (All-in-One vs Paged)
+  function toggleBookMode() {
+    isBookMode = !isBookMode;
+    document.body.classList.toggle('book-mode', isBookMode);
+    if (isBookMode) {
+      bookModeText.textContent = 'Switch to Paged View';
+      progressBar.style.width = '100%';
+    } else {
+      bookModeText.textContent = 'Switch to All-in-One View';
+      goToPage(currentIndex);
+    }
+  }
+
+  toggleBookModeBtn.addEventListener('click', toggleBookMode);
+  exitBookModeBtn.addEventListener('click', toggleBookMode);
+
+  // Mobile Menu Toggle
+  mobileMenuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // Interactive Tabs
+  function switchTab(btn, targetPaneId) {
+    const parentHeader = btn.parentElement;
+    const parentTabs = parentHeader.parentElement;
+    
+    parentHeader.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    parentTabs.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+    btn.classList.add('active');
+    const targetPane = document.getElementById(targetPaneId);
+    if (targetPane) targetPane.classList.add('active');
+  }
+
+  // Copy Code Functionality
+  function copyCode(btn) {
+    const codeBlock = btn.closest('.code-container').querySelector('.code-block');
+    const textToCopy = codeBlock.innerText;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      showToast('Code copied to clipboard!');
+    });
+  }
+
+  // Toast helper
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 2500);
+  }
+
+  // Filter Chapters via Search
+  chapterSearch.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    navButtons.forEach(btn => {
+      const text = btn.textContent.toLowerCase();
+      if (text.includes(query)) {
+        btn.style.display = 'flex';
+      } else {
+        btn.style.display = 'none';
+      }
+    });
+  });
+
+  // Handle direct hash navigation on load
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      const matchIndex = chapters.findIndex(c => c.id === hash);
+      if (matchIndex !== -1) {
+        goToPage(matchIndex);
+        return;
+      }
+    }
+    goToPage(0);
+  });
+</script>
+
+</body>
+</html>

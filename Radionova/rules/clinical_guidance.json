@@ -137,6 +137,59 @@
           ]
         }
       ]
+    },
+    "mri": {
+      "classes": ["NORMAL", "TUMOR"],
+      "confidence_bands": [
+        {
+          "min_confidence": 0.85,
+          "max_confidence": 1.00,
+          "class": "TUMOR",
+          "severity": "HIGH_CONFIDENCE_NEURO_LESION",
+          "clinical_summary": "Focal hyperintense intracranial lesion or parenchymal mass effect detected on structural neuroimaging.",
+          "differential_considerations": [
+            "Primary intra-axial brain neoplasm (Glioma / Astrocytoma)",
+            "Extra-axial meningeal neoplasm (Meningioma)",
+            "Secondary metastatic lesion / Cerebritis with perilesional vasogenic edema"
+          ],
+          "recommended_followup": [
+            "Urgent Neurosurgical and Neuro-Oncology consultation",
+            "Contrast-enhanced T1/T2/FLAIR MRI with MR Spectrometry / Perfusion weighting",
+            "Correlate with neurologic exam, cranial nerve testing, and ICP evaluation"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 0.84,
+          "class": "TUMOR",
+          "severity": "SUSPECTED_NEURO_ANOMALY",
+          "clinical_summary": "Suspicious signal intensity alteration or localized ventricular asymmetry requiring expert radiologic review.",
+          "differential_considerations": [
+            "Early low-grade lesion",
+            "Subacute ischemic change or demyelinating plaque",
+            "Vascular malformation"
+          ],
+          "recommended_followup": [
+            "Thin-slice 3T MRI with IV gadolinium contrast",
+            "Formal neuroradiologist subspecialty overread"
+          ]
+        },
+        {
+          "min_confidence": 0.50,
+          "max_confidence": 1.00,
+          "class": "NORMAL",
+          "severity": "PHYSIOLOGICAL_NEURO_PATENT",
+          "clinical_summary": "Symmetric cerebral hemispheres, intact sulcal-gyral pattern, and unremarkable ventricular caliber.",
+          "differential_considerations": [
+            "Age-appropriate physiological brain parenchyma",
+            "Non-structural headache etiology (migraine, tension-type)"
+          ],
+          "recommended_followup": [
+            "Correlate with clinical symptoms; outpatient neurology follow-up if headaches persist",
+            "No acute surgical intervention indicated"
+          ]
+        }
+      ]
     }
   }
 }

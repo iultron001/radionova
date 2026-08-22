@@ -20,21 +20,9 @@ export const ReportHistory: React.FC<ReportHistoryProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      width: '420px',
-      background: 'var(--bg-card)',
-      borderLeft: '2px solid var(--text-primary)',
-      zIndex: 1100,
-      boxShadow: '-10px 0 30px rgba(0,0,0,0.15)',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <div className="history-drawer">
       <div style={{
-        background: 'var(--text-primary)',
+        background: 'var(--bg-dark)',
         color: 'var(--text-inverse)',
         padding: '16px 20px',
         display: 'flex',
@@ -43,81 +31,77 @@ export const ReportHistory: React.FC<ReportHistoryProps> = ({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <FileText size={16} />
-          <span style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Clinical Reports Archive
+          <span style={{ fontSize: '13px', fontWeight: 750, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Diagnostic Study Archive
           </span>
         </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }}>
-          <X size={18} />
-        </button>
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-        {history.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-            <FileText size={32} style={{ marginBottom: '12px', opacity: 0.4 }} />
-            <div style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
-              No Studies Recorded
-            </div>
-            <p style={{ fontSize: '12px' }}>Upload and analyze an imaging study or lab panel to generate clinical records.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {history.map(item => (
-              <div 
-                key={item.id} 
-                style={{
-                  border: '1px solid var(--border-medium)',
-                  background: 'var(--bg-main)',
-                  padding: '14px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span className="tab-tag" style={{ background: 'var(--text-primary)', color: '#FFF', border: 'none' }}>
-                      {item.modality.replace('_', ' ').toUpperCase()}
-                    </span>
-                    <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '4px' }}>{item.title}</div>
-                  </div>
-                  <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{item.timestamp}</span>
-                </div>
-
-                {item.prediction && (
-                  <div style={{ fontSize: '12px', fontWeight: 600 }}>
-                    Result: <span style={{ color: 'var(--accent)' }}>{item.prediction}</span> 
-                    {item.confidence !== undefined && ` (${(item.confidence * 100).toFixed(1)}%)`}
-                  </div>
-                )}
-
-                <button
-                  className="btn-swiss-outline"
-                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}
-                  onClick={() => onDownloadPdf(item)}
-                >
-                  <Download size={12} />
-                  Download Clinical PDF
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {history.length > 0 && (
-        <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border-medium)', background: 'var(--bg-subtle)', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {history.length > 0 && (
+            <button 
+              onClick={onClearHistory}
+              style={{ background: 'none', border: 'none', color: '#DDD', cursor: 'pointer' }}
+              title="Clear Study History"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
           <button 
-            onClick={onClearHistory} 
-            className="btn-swiss-outline" 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px' }}
+            onClick={onClose} 
+            style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }}
           >
-            <Trash2 size={12} />
-            Clear Archive
+            <X size={18} />
           </button>
         </div>
-      )}
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {history.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)', fontSize: '12.5px' }}>
+            No archived clinical reports in this session yet. Completed analyses will appear here.
+          </div>
+        ) : (
+          history.map((item) => (
+            <div 
+              key={item.id} 
+              style={{
+                border: '1px solid var(--border-medium)',
+                background: 'var(--bg-card)',
+                padding: '16px',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <span className="tab-tag" style={{ background: 'var(--accent-light)', color: 'var(--accent-dark)', borderColor: 'var(--accent-subtle)' }}>
+                    {item.modality.toUpperCase()}
+                  </span>
+                  <div style={{ fontSize: '13px', fontWeight: 750, marginTop: '6px', color: 'var(--text-primary)' }}>
+                    {item.predictionOrSummary}
+                  </div>
+                </div>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{item.timestamp}</span>
+              </div>
+
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                Confidence / Triage: <span style={{ color: 'var(--accent)', fontWeight: 700 }}>{item.confidenceOrTriage}</span>
+              </div>
+
+              <button
+                className="btn-swiss-outline"
+                style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}
+                onClick={() => onDownloadPdf(item)}
+              >
+                <Download size={12} />
+                Download PDF Report
+              </button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };

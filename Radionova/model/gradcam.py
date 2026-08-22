@@ -1,9 +1,7 @@
 """
-RadiNova AI — Phase 3: Reusable Grad-CAM Explainability Module
-Targets: model.features.denseblock4 (DenseNet-121 last convolutional block)
-
-Generates visual explainability heatmaps overlaying salient anatomical regions
-contributing to the model's diagnostic classification.
+RadiNova AI — Enhanced Grad-CAM Explainability Module
+Supports DenseNet-121 feature layer hooks with modality-adaptive focal sharpening,
+bone cortical boundary focusing for fractures, and anatomical zone coordinate localization.
 """
 
 import io
@@ -14,23 +12,21 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 import cv2
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, Dict, Any
 
 class GradCAM:
     """
     Native PyTorch Grad-CAM (Gradient-weighted Class Activation Mapping).
-    Hooks into DenseNet-121 target layer (denseblock4) without external dependencies.
+    Hooks into DenseNet-121 target layer (denseblock4) with focal concentration.
     """
     def __init__(self, model: nn.Module, target_layer: Optional[nn.Module] = None):
         self.model = model
         self.model.eval()
         
-        # Default target layer for DenseNet-121 is the final dense block
         if target_layer is None:
             if hasattr(model, "features") and hasattr(model.features, "denseblock4"):
                 self.target_layer = model.features.denseblock4
             else:
-                # Fallback to last child in features
                 self.target_layer = list(model.features.children())[-1]
         else:
             self.target_layer = target_layer
@@ -49,7 +45,12 @@ class GradCAM:
         self.target_layer.register_forward_hook(forward_hook)
         self.target_layer.register_full_backward_hook(backward_hook)
 
-    def generate_heatmap(self, input_tensor: torch.Tensor, target_class: Optional[int] = None) -> np.ndarray:
+    def generate_heatmap(
+        self, 
+        input_tensor: torch.Tensor, 
+        target_class: Optional[int] = None,
+        modality: str = "chest_xray"
+    ) -> np.ndarray:
         """
         Computes the normalized Grad-CAM heatmap for a single image tensor (1, C, H, W).
         Returns a 2D numpy array [0.0, 1.0] of shape (H, W).
@@ -60,46 +61,43 @@ class GradCAM:
         if target_class is None:
             target_class = torch.argmax(logits, dim=1).item()
 
-        # Backward pass for the target class score
         score = logits[0, target_class]
         score.backward(retain_graph=True)
 
-        # Gradients: (1, Channels, H, W), Activations: (1, Channels, H, W)
         grads = self.gradients[0]  # (Channels, H, W)
         acts = self.activations[0] # (Channels, H, W)
 
-        # Global average pooling of gradients (channel-wise weights alpha)
-        weights = torch.mean(grads, dim=(1, 2), keepdim=True)  # (Channels, 1, 1)
+        # Global average pooling of gradients
+        weights = torch.mean(grads, dim=(1, 2), keepdim=True)
         
         # Linear combination of weighted activations
-        cam = torch.sum(weights * acts, dim=0) # (H, W)
-        
-        # Apply ReLU to retain only positive influences
+        cam = torch.sum(weights * acts, dim=0)
         cam = F.relu(cam)
         cam_np = cam.cpu().numpy()
         
-        # Normalize to [0, 1]
+        # Normalize
         cam_min, cam_max = cam_np.min(), cam_np.max()
         if cam_max - cam_min > 1e-8:
             cam_np = (cam_np - cam_min) / (cam_max - cam_min)
         else:
             cam_np = np.zeros_like(cam_np)
 
-        # Apply focal power sharpening to isolate highest-intensity epicenters
-        cam_np = np.power(cam_np, 2.2)
+        # Modality-Adaptive Focal Power Sharpening:
+        # Bone fractures are high-gradient narrow lines (power 3.0); Chest consolidations are lobar/parenchymal (power 2.2)
+        exponent = 3.0 if "limb" in modality or "fracture" in modality else 2.2
+        cam_np = np.power(cam_np, exponent)
 
-        # Suppress peripheral image boundary padding noise (outer 6% margin)
+        # Margin padding noise reduction
         gh, gw = cam_np.shape
-        by = max(int(gh * 0.06), 1)
-        bx = max(int(gw * 0.06), 1)
+        by = max(int(gh * 0.05), 1)
+        bx = max(int(gw * 0.05), 1)
         border_mask = np.ones_like(cam_np)
-        border_mask[:by, :] *= 0.15
-        border_mask[-by:, :] *= 0.15
-        border_mask[:, :bx] *= 0.15
-        border_mask[:, -bx:] *= 0.15
+        border_mask[:by, :] *= 0.1
+        border_mask[-by:, :] *= 0.1
+        border_mask[:, :bx] *= 0.1
+        border_mask[:, -bx:] *= 0.1
         cam_np = cam_np * border_mask
 
-        # Re-normalize focal map
         if cam_np.max() > 1e-6:
             cam_np = cam_np / cam_np.max()
         else:
@@ -107,16 +105,41 @@ class GradCAM:
 
         return cam_np
 
+def calculate_focal_metrics(heatmap: np.ndarray) -> Dict[str, Any]:
+    """Calculates spatial epicenter coordinates and focal intensity distribution."""
+    h, w = heatmap.shape
+    max_idx = np.unravel_index(np.argmax(heatmap), (h, w))
+    y_norm = float(max_idx[0] / max(h - 1, 1))
+    x_norm = float(max_idx[1] / max(w - 1, 1))
+
+    # Determine anatomical quadrant
+    quad_y = "Upper" if y_norm < 0.35 else ("Middle" if y_norm < 0.65 else "Lower")
+    quad_x = "Right" if x_norm < 0.45 else ("Left" if x_norm > 0.55 else "Central")
+    focal_zone = f"{quad_y} {quad_x} Field"
+
+    # Focal compactness (ratio of high activation area to total area)
+    high_act_ratio = float(np.mean(heatmap > 0.6))
+    focal_compactness = "Highly Localized (Focal)" if high_act_ratio < 0.08 else "Regional / Multifocal"
+
+    return {
+        "epicenter_y": y_norm,
+        "epicenter_x": x_norm,
+        "focal_zone": focal_zone,
+        "focal_compactness": focal_compactness,
+        "peak_intensity": float(np.max(heatmap))
+    }
+
 def apply_gradcam_overlay(
     original_image: Union[Image.Image, np.ndarray], 
     heatmap: np.ndarray, 
-    alpha: float = 0.55, 
+    alpha: float = 0.6, 
     colormap: int = cv2.COLORMAP_JET,
-    is_normal: bool = False
-) -> Tuple[Image.Image, np.ndarray]:
+    is_normal: bool = False,
+    modality: str = "chest_xray"
+) -> Tuple[Image.Image, np.ndarray, Dict[str, Any]]:
     """
     Overlays Grad-CAM heatmap onto the original radiograph with adaptive focal alpha blending.
-    If the scan is NORMAL, low/diffuse activations are suppressed so healthy tissue is not falsely marked.
+    Returns (overlay_pil, overlay_np, focal_metrics).
     """
     if isinstance(original_image, Image.Image):
         orig_rgb = np.array(original_image.convert("RGB"))
@@ -125,37 +148,33 @@ def apply_gradcam_overlay(
 
     h, w, _ = orig_rgb.shape
     
-    # High-quality bicubic interpolation
     resized_heatmap = cv2.resize(heatmap, (w, h), interpolation=cv2.INTER_CUBIC)
     resized_heatmap = np.clip(resized_heatmap, 0.0, 1.0)
     
-    # Smooth anatomical contours
-    smooth_heatmap = cv2.GaussianBlur(resized_heatmap, (15, 15), 0)
+    # Kernel size tailored to modality: smaller kernel for bone cortical margins
+    k_size = 9 if ("limb" in modality or "fracture" in modality) else 15
+    smooth_heatmap = cv2.GaussianBlur(resized_heatmap, (k_size, k_size), 0)
     smooth_heatmap = np.clip(smooth_heatmap, 0.0, 1.0)
 
-    # 8-bit Colormap conversion
+    focal_metrics = calculate_focal_metrics(smooth_heatmap)
+
     heatmap_uint8 = np.uint8(255 * smooth_heatmap)
     heatmap_color = cv2.applyColorMap(heatmap_uint8, colormap)
     heatmap_color_rgb = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
 
-    # Adaptive focal alpha blending:
-    # If normal, use high threshold (0.65) so healthy tissue stays pristine
-    # If pathological (Pneumonia/Fracture), threshold at 0.35 to show true affected epicenters
-    thresh = 0.65 if is_normal else 0.35
+    # Thresholding
+    thresh = 0.70 if is_normal else (0.28 if ("limb" in modality or "fracture" in modality) else 0.32)
     mask = np.clip((smooth_heatmap - thresh) / (1.0 - thresh + 1e-6), 0.0, 1.0)
-    # Apply soft sigmoid curve to mask
-    mask = np.power(mask, 1.5)
+    mask = np.power(mask, 1.6)
     adaptive_alpha = (mask * alpha)[:, :, np.newaxis]
 
-    # Seamless composite
     blended = np.uint8(adaptive_alpha * heatmap_color_rgb + (1.0 - adaptive_alpha) * orig_rgb)
     blended_pil = Image.fromarray(blended)
     
-    return blended_pil, blended
+    return blended_pil, blended, focal_metrics
 
 def image_to_base64(image: Image.Image, format: str = "JPEG") -> str:
-    """Converts a PIL Image to a base64 encoded data URI string."""
     buffered = io.BytesIO()
-    image.save(buffered, format=format, quality=90)
+    image.save(buffered, format=format, quality=92)
     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return f"data:image/{format.lower()};base64,{img_str}"
