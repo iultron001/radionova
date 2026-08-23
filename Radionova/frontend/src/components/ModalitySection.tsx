@@ -103,10 +103,10 @@ export const ModalitySection: React.FC<ModalitySectionProps> = ({
 
       if (meta.id === 'chest_xray') {
         sampleFileName = sampleType === 'pneumonia' ? 'chest_pneumonia_1.jpeg' : 'chest_normal_1.jpeg';
-        samplePath = `/samples/${sampleFileName}`;
+        samplePath = `./samples/${sampleFileName}`;
       } else if (meta.id === 'limb_fracture') {
         sampleFileName = sampleType === 'fracture' ? 'limb_fracture_1.jpg' : 'limb_normal_1.jpg';
-        samplePath = `/samples/${sampleFileName}`;
+        samplePath = `./samples/${sampleFileName}`;
       } else if (meta.id === 'mri') {
         if (sampleType === 'report') {
           const sampleText = `CLINICAL NEUROLOGY & BRAIN MRI REPORT
@@ -124,8 +124,25 @@ Impression: Unremarkable non-contrast brain neuroimaging study. No acute mass ef
           return;
         } else {
           sampleFileName = sampleType === 'tumor' ? 'mri_tumor_1.jpg' : 'mri_normal_1.jpg';
-          samplePath = `/samples/${sampleFileName}`;
+          samplePath = `./samples/${sampleFileName}`;
         }
+      } else if (meta.id === 'breast_cancer') {
+        sampleFileName = sampleType === 'malignant' ? 'breast_malignant_1.png' : 'breast_benign_1.png';
+        samplePath = `./samples/${sampleFileName}`;
+      } else if (meta.id === 'blood') {
+        const isAbnormal = sampleType === 'abnormal';
+        const sampleText = `COMPREHENSIVE HEMATOLOGY & METABOLIC PANEL
+Study Date: 2026-08-23 | Department of Diagnostic Laboratory Medicine
+Parameters:
+- White Blood Cells (WBC): ${isAbnormal ? '14.8' : '6.8'} 10^3/uL [4.5 - 11.0] ${isAbnormal ? '(HIGH)' : '(NORMAL)'}
+- Hemoglobin (Hb): ${isAbnormal ? '10.2' : '14.2'} g/dL [12.0 - 16.0] ${isAbnormal ? '(LOW)' : '(NORMAL)'}
+- Platelets: 265 10^3/uL [150 - 450] (NORMAL)
+- Serum Creatinine: 0.9 mg/dL [0.6 - 1.2] (NORMAL)
+- BUN: 14.0 mg/dL [7.0 - 20.0] (NORMAL)`;
+        const blob = new Blob([sampleText], { type: 'text/plain' });
+        const file = new File([blob], `${sampleType}_blood_panel.txt`, { type: 'text/plain' });
+        await handleFileUpload(file);
+        return;
       } else {
         const sampleText = `CLINICAL DIAGNOSTIC REPORT — STUDY: ${meta.name.toUpperCase()}
 Study Date: 2026-08-20 | Department of Diagnostic Medicine
@@ -293,14 +310,42 @@ Recommendations: Maintain standard observational follow-up and correlate with vi
                   </>
                 )}
 
-                {meta.id !== 'chest_xray' && meta.id !== 'limb_fracture' && meta.id !== 'mri' && (
-                  <button className="preset-item-btn" onClick={() => loadSample('standard')}>
-                    <div className="preset-btn-left">
-                      <FileText size={16} style={{ color: 'var(--accent)' }} />
-                      <span className="preset-btn-name">Load Standard Clinical {meta.name} Panel</span>
-                    </div>
-                    <span className="preset-btn-tag">Standard Case</span>
-                  </button>
+                {meta.id === 'breast_cancer' && (
+                  <>
+                    <button className="preset-item-btn" onClick={() => loadSample('malignant')}>
+                      <div className="preset-btn-left">
+                        <Activity size={16} style={{ color: 'var(--accent)' }} />
+                        <span className="preset-btn-name">Malignant Mammogram: Dense Spiculated Mass (BIRADS 5)</span>
+                      </div>
+                      <span className="preset-btn-tag alert">Malignant</span>
+                    </button>
+                    <button className="preset-item-btn" onClick={() => loadSample('benign')}>
+                      <div className="preset-btn-left">
+                        <CheckCircle2 size={16} style={{ color: 'var(--status-positive-text)' }} />
+                        <span className="preset-btn-name">Benign Mammogram: Clear Well-Circumscribed (BIRADS 2)</span>
+                      </div>
+                      <span className="preset-btn-tag positive">Benign</span>
+                    </button>
+                  </>
+                )}
+
+                {meta.id === 'blood' && (
+                  <>
+                    <button className="preset-item-btn" onClick={() => loadSample('abnormal')}>
+                      <div className="preset-btn-left">
+                        <Activity size={16} style={{ color: 'var(--accent)' }} />
+                        <span className="preset-btn-name">Hematology Panel: Leukocytosis / Microcytic Anemia</span>
+                      </div>
+                      <span className="preset-btn-tag alert">Abnormal</span>
+                    </button>
+                    <button className="preset-item-btn" onClick={() => loadSample('normal')}>
+                      <div className="preset-btn-left">
+                        <CheckCircle2 size={16} style={{ color: 'var(--status-positive-text)' }} />
+                        <span className="preset-btn-name">Hematology Panel: Normal Homeostatic Values</span>
+                      </div>
+                      <span className="preset-btn-tag positive">Normal</span>
+                    </button>
+                  </>
                 )}
               </div>
             </div>
