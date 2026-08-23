@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { ModalityId, AnyAnalysisResult } from '../types';
 import { generateFallbackAnalysis } from '../services/mockAnalysisService';
+import { buildApiUrl } from '../services/apiConfig';
 
 interface NewStudyModalProps {
   isOpen: boolean;
@@ -148,7 +149,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
 
       let data: AnyAnalysisResult;
       try {
-        const res = await fetch(endpoint, {
+        const res = await fetch(buildApiUrl(endpoint), {
           method: 'POST',
           body: formData
         });

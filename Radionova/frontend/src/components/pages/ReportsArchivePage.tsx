@@ -51,13 +51,20 @@ export const ReportsArchivePage: React.FC<ReportsArchivePageProps> = ({
       selectedModality === 'all' || rec.modality === selectedModality;
 
     // Triage filter
+    const textToCheck = (rec.confidenceOrTriage + ' ' + rec.predictionOrSummary).toUpperCase();
     const isAlert = 
-      rec.confidenceOrTriage.includes('ACUTE') || 
-      rec.confidenceOrTriage.includes('PNEUMONIA') || 
-      rec.confidenceOrTriage.includes('FRACTURE') || 
-      rec.confidenceOrTriage.includes('TUMOR') ||
-      rec.confidenceOrTriage.includes('MALIGNANT') ||
-      rec.confidenceOrTriage.includes('ELEVATED');
+      !textToCheck.includes('NOT_FRACTURED') &&
+      !textToCheck.includes('NO FRACTURE') &&
+      !textToCheck.includes('NORMAL') &&
+      !textToCheck.includes('BENIGN') &&
+      (
+        textToCheck.includes('ACUTE') || 
+        textToCheck.includes('PNEUMONIA') || 
+        textToCheck.includes('FRACTUR') || 
+        textToCheck.includes('TUMOR') ||
+        textToCheck.includes('MALIGNANT') ||
+        textToCheck.includes('ELEVATED')
+      );
 
     const matchesTriage = 
       selectedTriage === 'all' ||
@@ -189,12 +196,20 @@ export const ReportsArchivePage: React.FC<ReportsArchivePageProps> = ({
             </thead>
             <tbody>
               {filteredHistory.map((rec) => {
+                const textToCheck = (rec.confidenceOrTriage + ' ' + rec.predictionOrSummary).toUpperCase();
                 const isAlert = 
-                  rec.confidenceOrTriage.includes('ACUTE') || 
-                  rec.confidenceOrTriage.includes('PNEUMONIA') || 
-                  rec.confidenceOrTriage.includes('FRACTURE') || 
-                  rec.confidenceOrTriage.includes('TUMOR') ||
-                  rec.confidenceOrTriage.includes('ELEVATED');
+                  !textToCheck.includes('NOT_FRACTURED') &&
+                  !textToCheck.includes('NO FRACTURE') &&
+                  !textToCheck.includes('NORMAL') &&
+                  !textToCheck.includes('BENIGN') &&
+                  (
+                    textToCheck.includes('ACUTE') || 
+                    textToCheck.includes('PNEUMONIA') || 
+                    textToCheck.includes('FRACTUR') || 
+                    textToCheck.includes('TUMOR') ||
+                    textToCheck.includes('MALIGNANT') ||
+                    textToCheck.includes('ELEVATED')
+                  );
 
                 return (
                   <tr key={rec.id} className="archive-row">

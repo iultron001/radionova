@@ -56,6 +56,8 @@ export interface CVInfographicData {
   fracture_type?: string;
   lesion_density_index?: number;
   mass_effect_level?: string;
+  malignancy_index?: number;
+  mass_morphology?: string;
   triage_category: string;
   anatomical_zones: AnatomicalZoneItem[];
   radiologic_signs: RadiologicSignItem[];
@@ -87,8 +89,10 @@ export interface CVAnalysisResult {
   patient_id?: string;
   study_date?: string;
   birads_score?: number;
+  birads_category?: string;
   is_alert?: boolean;
   emergency_urgency_score?: number;
+  urgency_score?: number;
   doctor_summary?: string;
   patient_summary?: string;
   gatekeeper?: any;

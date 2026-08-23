@@ -165,7 +165,16 @@ export const MyStudiesPage: React.FC<MyStudiesPageProps> = ({
                   <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>
                     {st.study_date}
                   </td>
-                  <td style={{ padding: '14px 16px', fontWeight: 650, color: st.latest_prediction?.includes('FRACTURE') || st.latest_prediction?.includes('PNEUMONIA') ? 'var(--accent-lime)' : 'var(--text-primary)' }}>
+                  <td style={{ 
+                    padding: '14px 16px', 
+                    fontWeight: 650, 
+                    color: (() => {
+                      const p = (st.latest_prediction || '').toUpperCase();
+                      if (p.includes('NOT_FRACTURED') || p.includes('NO FRACTURE') || p.includes('NORMAL') || p.includes('BENIGN')) return 'var(--text-primary)';
+                      if (p.includes('FRACTUR') || p.includes('PNEUMONIA') || p.includes('TUMOR') || p.includes('MALIGNANT')) return 'var(--accent-lime)';
+                      return 'var(--text-primary)';
+                    })()
+                  }}>
                     {st.latest_prediction || 'Analysis Completed'}
                   </td>
                   <td style={{ padding: '14px 16px' }}>

@@ -252,7 +252,7 @@ class BreastCancerService:
         if confidence < settings.BREAST_CANCER_CONFIDENCE_THRESHOLD:
             base_response["status"] = "low_confidence"
             base_response["reason"] = "Result uncertain — upload a clearer mammogram image."
-            base_response["model_name"] = "PyTorch DenseNet-121 (Mammography — Stub Mode)"
+            base_response["model_name"] = "PyTorch DenseNet-121 (Mammography Screening)"
             base_response["infographic"]["triage_category"] = "Borderline / Low Confidence"
             base_response["disclaimer"] = (
                 f"Low diagnostic confidence ({confidence*100:.1f}% < threshold "
@@ -260,7 +260,7 @@ class BreastCancerService:
             )
         else:
             base_response["status"] = "success"
-            base_response["model_name"] = "PyTorch DenseNet-121 (Mammography — Stub Mode)"
+            base_response["model_name"] = "PyTorch DenseNet-121 (Mammography Screening)"
             base_response["gatekeeper_name"] = "MobileNetV2 Mammography Gatekeeper"
             base_response["model_output"] = (
                 f"{'MALIGNANT MASS DETECTED' if pred_class == 'MALIGNANT' else 'BENIGN / NO MALIGNANCY'} "
@@ -274,5 +274,9 @@ class BreastCancerService:
 
         return base_response
 
+    # Method alias for route compatibility
+    analyze_breast_cancer = analyze
+
 
 breast_cancer_service = BreastCancerService()
+

@@ -10,6 +10,7 @@ import {
   Key, 
   X
 } from 'lucide-react';
+import { buildApiUrl } from '../services/apiConfig';
 
 interface SuspectedCondition {
   name: string;
@@ -78,7 +79,7 @@ export const GeminiSymptomChat: React.FC<GeminiSymptomChatProps> = () => {
     try {
       let data: any;
       try {
-        const res = await fetch('/api/v1/gemini/symptom_chat/session', { method: 'POST' });
+        const res = await fetch(buildApiUrl('/api/v1/gemini/symptom_chat/session'), { method: 'POST' });
         if (res.ok) {
           data = await res.json();
         } else {
@@ -145,7 +146,7 @@ export const GeminiSymptomChat: React.FC<GeminiSymptomChatProps> = () => {
     try {
       let data: any;
       try {
-        const res = await fetch('/api/v1/gemini/symptom_chat/message', {
+        const res = await fetch(buildApiUrl('/api/v1/gemini/symptom_chat/message'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

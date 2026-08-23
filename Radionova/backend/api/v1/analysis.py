@@ -20,6 +20,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from pydantic import BaseModel
 from backend.db.database import get_db
 from backend.services.cv_service import cv_service
+from backend.services.breast_cancer_service import breast_cancer_service
 from backend.services.llm_service import llm_service
 
 router = APIRouter(tags=["Analysis & Inferences"])
@@ -213,6 +214,54 @@ async def analyze_mri_image(
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"MRI image analysis failed: {str(e)}")
+
+@router.post("/analysis/breast_cancer")
+async def analyze_breast_cancer_mammogram(
+    file: UploadFile = File(...),
+    study_id: Optional[str] = Form(None),
+):
+    """
+    Runs Mammography Screening DenseNet-121 + BIRADS Scoring + Grad-CAM explainability overlay.
+    """
+    if file.content_type and not (file.content_type.startswith("image/") or file.content_type == "application/octet-stream"):
+        raise HTTPException(status_code=400, detail="File must be an image (JPEG/PNG).")
+    
+    try:
+        contents = await file.read()
+        result = breast_cancer_service.analyze_breast_cancer(contents)
+        result["disclaimer"] = MANDATORY_DISCLAIMER
+        
+        if study_id:
+            conn = get_db()
+            cursor = conn.cursor()
+            analysis_id = str(uuid.uuid4())
+            now = datetime.utcnow().isoformat()
+            cursor.execute("""
+            INSERT INTO analyses (
+                id, study_id, modality, prediction, confidence,
+                gatekeeper_passed, gatekeeper_confidence,
+                probabilities, gradcam_image, guidance, disclaimer, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                analysis_id, study_id, "breast_cancer",
+                result.get("prediction", "UNKNOWN"),
+                float(result.get("confidence", 0.0)),
+                1 if result.get("gatekeeper_passed", True) else 0,
+                float(result.get("gatekeeper_confidence", 1.0)),
+                json.dumps(result.get("probabilities", {})),
+                result.get("gradcam_overlay", "") or "",
+                json.dumps(result.get("guidance", {})),
+                MANDATORY_DISCLAIMER, now
+            ))
+            cursor.execute("UPDATE studies SET status = ? WHERE id = ?", ("Analysis Completed", study_id))
+            conn.commit()
+            conn.close()
+            result["analysis_id"] = analysis_id
+            result["study_id"] = study_id
+            
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Breast cancer analysis failed: {str(e)}")
 
 @router.post("/analysis/mri")
 async def analyze_mri_report(req: MRIReportAnalysisRequest):

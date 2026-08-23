@@ -94,7 +94,7 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     modalityTitle = 'Limb Radiograph (X-Ray)';
     anatomicalRegion = 'Wrist / Forearm Extremity';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Limb Fracture)';
-    if (predUpper.includes('FRACTUR')) {
+    if ((predUpper === 'FRACTURED' || predUpper === 'FRACTURE' || predUpper.includes('FRACTUR')) && !predUpper.includes('NOT_FRACTURED') && !predUpper.includes('NO FRACTURE') && !predUpper.includes('INTACT') && !predUpper.includes('NORMAL')) {
       isPositive = true;
       predictionTitle = 'Cortical Bone Fracture Detected';
       locationDetail = 'Distal Radius / Metaphyseal Cortical Edge';
@@ -122,7 +122,7 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     modalityTitle = 'Brain MRI Neuroimaging';
     anatomicalRegion = 'Intracranial Parenchyma';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Brain MRI)';
-    if (predUpper.includes('TUMOR') || predUpper.includes('LESION') || predUpper.includes('GLIOMA')) {
+    if ((predUpper.includes('TUMOR') || predUpper.includes('LESION') || predUpper.includes('GLIOMA') || predUpper.includes('ABNORMAL')) && !predUpper.includes('NORMAL') && !predUpper.includes('NO TUMOR') && !predUpper.includes('NO FOCAL LESION')) {
       isPositive = true;
       predictionTitle = 'Intracranial Lesion / Tumor Detected';
       locationDetail = 'Frontal-Parietal White-Gray Junction';
@@ -149,8 +149,8 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     ModalityIcon = Ribbon;
     modalityTitle = 'Breast Cancer Screening';
     anatomicalRegion = 'Mammographic Tissue / Breast Parenchyma';
-    modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Mammography)';
-    if (predUpper.includes('MALIGNANT') || predUpper.includes('CANCER')) {
+    modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Mammography Screening)';
+    if ((predUpper.includes('MALIGNANT') || predUpper.includes('CANCER')) && !predUpper.includes('BENIGN') && !predUpper.includes('NON-MALIGNANT') && !predUpper.includes('NO MALIGNANCY')) {
       isPositive = true;
       predictionTitle = 'Malignant / Suspicious Mass Detected';
       locationDetail = 'Upper Outer Quadrant / Spiculated Foci';
@@ -497,7 +497,39 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
                   </div>
                 )}
 
-                {/* 4. Normal Scan Clearance Indicator */}
+                {/* 4. Breast Cancer Malignant Mass Detection Box */}
+                {modality === 'breast_cancer' && isPositive && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '52%',
+                      width: '110px',
+                      height: '110px',
+                      border: '2px solid #f87171',
+                      boxShadow: '0 0 16px rgba(248, 113, 113, 0.45)',
+                      borderRadius: '6px',
+                      pointerEvents: 'none',
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute',
+                      top: '-18px',
+                      left: '0',
+                      background: '#f87171',
+                      color: '#ffffff',
+                      fontSize: '9px',
+                      fontWeight: 800,
+                      padding: '1px 6px',
+                      borderRadius: '2px'
+                    }}>
+                      SUSPICIOUS MASS {confidenceNum}%
+                    </span>
+                  </div>
+                )}
+
+                {/* 5. Normal Scan Clearance Indicator */}
                 {!isPositive && isCV && (
                   <div
                     style={{

@@ -11,6 +11,7 @@ import {
 
 import { ModalityMeta, CVAnalysisResult, LLMAnalysisResult, AnyAnalysisResult } from '../types';
 import { generateFallbackAnalysis } from '../services/mockAnalysisService';
+import { buildApiUrl } from '../services/apiConfig';
 import { ImageDiffViewer } from './ImageDiffViewer';
 import { GuidanceCard } from './GuidanceCard';
 import { LLMExplanationCard } from './LLMExplanationCard';
@@ -63,7 +64,7 @@ export const ModalitySection: React.FC<ModalitySectionProps> = ({
 
       let result: AnyAnalysisResult;
       try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(buildApiUrl(endpoint), {
           method: 'POST',
           body: formData
         });
@@ -175,7 +176,13 @@ Recommendations: Maintain standard observational follow-up and correlate with vi
   const llmResult = !isCV && activeResult ? (activeResult as LLMAnalysisResult) : null;
 
   const isAlertResult = cvResult
-    ? (cvResult.prediction.includes('PNEUMONIA') || cvResult.prediction.includes('FRACTURE') || cvResult.prediction.includes('TUMOR'))
+    ? (() => {
+        const p = (cvResult.prediction || '').toUpperCase();
+        if (p === 'NORMAL' || p === 'BENIGN' || p === 'NOT_FRACTURED' || p.includes('NOT_FRACTURED') || p.includes('NO FRACTURE') || p.includes('INTACT') || p.includes('BENIGN')) {
+          return false;
+        }
+        return p.includes('PNEUMONIA') || p.includes('FRACTUR') || p.includes('TUMOR') || p.includes('MALIGNANT') || p.includes('LESION') || p.includes('GLIOMA');
+      })()
     : (llmResult?.explanation?.triage_level?.severity === 'ELEVATED' || llmResult?.explanation?.triage_level?.severity === 'ACUTE');
 
   return (
