@@ -115,8 +115,8 @@ export const App: React.FC = () => {
       id: Date.now().toString(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       modality: MODALITIES[modality]?.name || modality,
-      predictionOrSummary: 'prediction' in result ? result.prediction : result.explanation.title,
-      confidenceOrTriage: 'confidence' in result ? `${(result.confidence * 100).toFixed(1)}%` : (result.explanation.triage_level?.label || 'REVIEWED'),
+      predictionOrSummary: 'prediction' in result ? result.prediction : (result.explanation?.title || 'Clinical Analysis'),
+      confidenceOrTriage: 'confidence' in result ? `${(result.confidence * 100).toFixed(1)}%` : (result.explanation?.triage_level?.label || 'REVIEWED'),
       data: result
     };
     setHistory(prev => [record, ...prev]);
@@ -167,36 +167,124 @@ export const App: React.FC = () => {
         }
       }
 
-      const response = await fetch('/api/v1/reports/generate', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('radinova_token') || ''}`
-        },
-        body: JSON.stringify({
-          modality: mod,
-          patient_name: patientName,
-          patient_id: patientId,
-          prediction: pred,
-          confidence: conf,
-          findings: findings,
-          impression: impression,
-          clinical_notes: clinicalNotes,
-          full_data: resultData
-        })
-      });
-      if (!response.ok) throw new Error('PDF Generation failed');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `RadiNova_Report_${mod.toUpperCase()}_${patientId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      let responseOk = false;
+      try {
+        const response = await fetch('/api/v1/reports/generate', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('radinova_token') || ''}`
+          },
+          body: JSON.stringify({
+            modality: mod,
+            patient_name: patientName,
+            patient_id: patientId,
+            prediction: pred,
+            confidence: conf,
+            findings: findings,
+            impression: impression,
+            clinical_notes: clinicalNotes,
+            full_data: resultData
+          })
+        });
+        if (response.ok) {
+          responseOk = true;
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `RadiNova_Report_${mod.toUpperCase()}_${patientId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+      } catch {
+        // Fallback to client print window
+      }
+
+      if (!responseOk) {
+        // Standalone Client-Side Institutional Print & PDF Report Generator
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>RadiNova Clinical Report - ${patientId}</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+                .header { border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+                .logo { font-size: 24px; font-weight: 800; color: #059669; }
+                .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; }
+                .meta-item strong { color: #475569; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 13px; font-weight: 800; color: #0f172a; text-transform: uppercase; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px; letter-spacing: 0.04em; }
+                .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: 800; font-size: 12px; }
+                .badge-alert { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+                .badge-normal { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
+                .disclaimer { margin-top: 40px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+                @media print { body { padding: 20px; } }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <div>
+                  <div class="logo">RadiNova AI</div>
+                  <div style="font-size: 13px; color: #64748b;">Clinical Decision Support System (CDSS)</div>
+                </div>
+                <div style="text-align: right; font-size: 12px; color: #64748b;">
+                  <div><strong>Report ID:</strong> RN-RPT-${Date.now().toString().slice(-6)}</div>
+                  <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</div>
+                </div>
+              </div>
+
+              <div class="meta-grid">
+                <div class="meta-item"><strong>Patient Full Name</strong> ${patientName}</div>
+                <div class="meta-item"><strong>Medical Record Number</strong> ${patientId}</div>
+                <div class="meta-item"><strong>Target Modality</strong> ${mod.replace('_', ' ').toUpperCase()}</div>
+                <div class="meta-item"><strong>AI Certainty / Confidence</strong> ${(conf * 100).toFixed(1)}%</div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Primary Diagnostic Finding</div>
+                <div style="margin-bottom: 8px;">
+                  <span class="badge ${pred.includes('PNEUMONIA') || pred.includes('FRACTUR') || pred.includes('TUMOR') || pred.includes('MALIGNANT') ? 'badge-alert' : 'badge-normal'}">
+                    ${pred}
+                  </span>
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Objective Radiographic / Laboratory Findings</div>
+                <p style="margin: 0;">${findings}</p>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Clinical Impression & Synthesis</div>
+                <p style="margin: 0;">${impression}</p>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Recommended Clinical Action Plan</div>
+                <p style="margin: 0;">${clinicalNotes}</p>
+              </div>
+
+              <div class="disclaimer">
+                CONFIDENTIAL MEDICAL RECORD: This institutional clinical report was synthesized with AI assistance (RadiNova CDSS). Final diagnosis and management require direct verification by an attending medical doctor.
+              </div>
+              <script>
+                window.onload = function() { window.print(); }
+              </script>
+            </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      }
     } catch (err) {
-      alert('Could not download PDF. Verify backend server is running.');
+      console.error('PDF export error:', err);
     }
   };
 

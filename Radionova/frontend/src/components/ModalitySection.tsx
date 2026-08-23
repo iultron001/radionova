@@ -10,6 +10,7 @@ import {
 
 
 import { ModalityMeta, CVAnalysisResult, LLMAnalysisResult, AnyAnalysisResult } from '../types';
+import { generateFallbackAnalysis } from '../services/mockAnalysisService';
 import { ImageDiffViewer } from './ImageDiffViewer';
 import { GuidanceCard } from './GuidanceCard';
 import { LLMExplanationCard } from './LLMExplanationCard';
@@ -60,20 +61,25 @@ export const ModalitySection: React.FC<ModalitySectionProps> = ({
         endpoint = `/explain/${meta.id}`;
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData
-      });
+      let result: AnyAnalysisResult;
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData
+        });
 
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.detail || `Server error (${response.status})`);
+        if (!response.ok) {
+          throw new Error(`Server error (${response.status})`);
+        }
+        result = await response.json();
+      } catch (netErr) {
+        console.warn('Backend API offline or GitHub Pages static mode. Using client-side diagnostic synthesizer.');
+        result = await generateFallbackAnalysis(file, meta.id);
       }
-
-      const result = await response.json();
+      
       onAnalysisComplete(result);
     } catch (err: any) {
-      setError(err.message || 'Analysis failed. Ensure the backend server is running.');
+      setError(err.message || 'Analysis failed.');
     } finally {
       setLoading(false);
     }
@@ -529,8 +535,8 @@ Recommendations: Maintain standard observational follow-up and correlate with vi
 
                     {/* Interactive Grad-CAM Heatmap Viewer */}
                     <ImageDiffViewer
-                      originalImage={cvResult.original_image}
-                      gradcamOverlay={cvResult.gradcam_overlay}
+                      originalImage={cvResult.original_image || cvResult.original_image_base64 || ''}
+                      gradcamOverlay={cvResult.gradcam_overlay || cvResult.gradcam_base64 || ''}
                       modality={meta.name}
                     />
                   </div>
@@ -552,8 +558,8 @@ Recommendations: Maintain standard observational follow-up and correlate with vi
                   <>
                     <LLMExplanationCard
                       explanation={llmResult.explanation}
-                      source={llmResult.source}
-                      filename={llmResult.filename}
+                      source={llmResult.source || 'TEMPLATE_FALLBACK'}
+                      filename={llmResult.filename || 'clinical_data.txt'}
                       modality={meta.name}
                     />
 
@@ -587,8 +593,8 @@ Recommendations: Maintain standard observational follow-up and correlate with vi
 
                       <LLMExplanationCard
                         explanation={llmResult.explanation}
-                        source={llmResult.source}
-                        filename={llmResult.filename}
+                        source={llmResult.source || 'TEMPLATE_FALLBACK'}
+                        filename={llmResult.filename || 'clinical_data.txt'}
                         modality={meta.name}
                         showTableOnly={true}
                       />

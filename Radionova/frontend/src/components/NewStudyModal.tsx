@@ -12,6 +12,7 @@ import {
   Ribbon
 } from 'lucide-react';
 import { ModalityId, AnyAnalysisResult } from '../types';
+import { generateFallbackAnalysis } from '../services/mockAnalysisService';
 
 interface NewStudyModalProps {
   isOpen: boolean;
@@ -145,17 +146,21 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
         endpoint = `/explain/${targetModality}`;
       }
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        body: formData
-      });
+      let data: AnyAnalysisResult;
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          body: formData
+        });
 
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || `Analysis request failed for ${modalityObj.shortName} (${res.status}).`);
+        if (!res.ok) {
+          throw new Error(`Status ${res.status}`);
+        }
+        data = await res.json();
+      } catch (networkOr405Err) {
+        console.warn('Backend API offline or static GitHub Pages mode. Using client-side clinical analysis generator.');
+        data = await generateFallbackAnalysis(file, targetModality, patientName, patientId);
       }
-
-      const data = await res.json();
       
       // Inject patient details if missing
       data.patient_name = patientName;
@@ -165,7 +170,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
       onAnalysisSuccess(data, targetModality);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Analysis failed. Make sure backend server is running.');
+      setError(err.message || 'Analysis failed.');
     } finally {
       setLoading(false);
     }
@@ -348,13 +353,13 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
             Instant Sample Demonstrators ({currentOption.shortName}):
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {/* If Chest Radiograph */}
+            {/* If Chest X-Ray */}
             {selectedModality === 'chest_xray' && (
               <>
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/chest_pneumonia_1.jpeg', 'chest_xray', 'Chest Pneumonia')}
+                  onClick={() => handleLoadSample('./samples/chest_pneumonia_1.jpeg', 'chest_xray', 'Pneumonia Chest')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -377,7 +382,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/chest_normal_1.jpeg', 'chest_xray', 'Normal Chest')}
+                  onClick={() => handleLoadSample('./samples/chest_normal_1.jpeg', 'chest_xray', 'Normal Chest')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -406,7 +411,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/limb_fracture_1.jpg', 'limb_fracture', 'Wrist Fracture')}
+                  onClick={() => handleLoadSample('./samples/limb_fracture_1.jpg', 'limb_fracture', 'Wrist Fracture')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -429,7 +434,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/limb_normal_1.jpg', 'limb_fracture', 'Normal Limb')}
+                  onClick={() => handleLoadSample('./samples/limb_normal_1.jpg', 'limb_fracture', 'Normal Limb')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -458,7 +463,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/mri_tumor_1.jpg', 'mri', 'Brain MRI Tumor')}
+                  onClick={() => handleLoadSample('./samples/mri_tumor_1.jpg', 'mri', 'Brain MRI Tumor')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -481,7 +486,7 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
                 <button
                   type="button"
                   disabled={loading}
-                  onClick={() => handleLoadSample('/samples/mri_normal_1.jpg', 'mri', 'Brain MRI Normal')}
+                  onClick={() => handleLoadSample('./samples/mri_normal_1.jpg', 'mri', 'Brain MRI Normal')}
                   style={{
                     flex: 1,
                     background: 'var(--bg-elevated)',
@@ -504,16 +509,118 @@ export const NewStudyModal: React.FC<NewStudyModalProps> = ({
               </>
             )}
 
-            {/* Fallback sample buttons for Blood and Breast Cancer */}
-            {['blood'].includes(selectedModality) && (
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '6px 0' }}>
-                Upload a CBC lab report, hematology PDF, or diagnostic text file to trigger AI blood panel interpretation.
-              </div>
+            {/* If Breast Cancer */}
+            {selectedModality === 'breast_cancer' && (
+              <>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleLoadSample('./samples/breast_malignant_1.png', 'breast_cancer', 'Malignant Mammogram')}
+                  style={{
+                    flex: 1,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'var(--text-primary)',
+                    fontSize: '12px',
+                    fontWeight: 650,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Sparkles size={14} style={{ color: '#f87171' }} />
+                  <span>Load Malignant Mass Sample</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleLoadSample('./samples/breast_benign_1.png', 'breast_cancer', 'Benign Mammogram')}
+                  style={{
+                    flex: 1,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'var(--text-primary)',
+                    fontSize: '12px',
+                    fontWeight: 650,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <CheckCircle2 size={14} style={{ color: '#10b981' }} />
+                  <span>Load Benign Mammogram Sample</span>
+                </button>
+              </>
             )}
-            {['breast_cancer'].includes(selectedModality) && (
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '6px 0' }}>
-                Upload a mammogram image (JPEG/PNG/DICOM) to run the Breast Cancer DenseNet-121 screening model.
-              </div>
+
+            {/* If Blood Panel */}
+            {selectedModality === 'blood' && (
+              <>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={async () => {
+                    const sampleText = `COMPREHENSIVE HEMATOLOGY & METABOLIC PANEL\nPatient ID: RN-2026-00142 | Study: Complete Blood Count\nWBC: 14.8 10^3/uL (High)\nHemoglobin: 10.2 g/dL (Low)\nPlatelets: 265 10^3/uL (Normal)\nSerum Creatinine: 0.9 mg/dL (Normal)\nBUN: 14.0 mg/dL (Normal)`;
+                    const blob = new Blob([sampleText], { type: 'text/plain' });
+                    const file = new File([blob], 'abnormal_cbc_panel.txt', { type: 'text/plain' });
+                    await handleFileUpload(file, 'blood');
+                  }}
+                  style={{
+                    flex: 1,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'var(--text-primary)',
+                    fontSize: '12px',
+                    fontWeight: 650,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Sparkles size={14} style={{ color: '#f87171' }} />
+                  <span>Load Leukocytosis / Anemia Panel</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={async () => {
+                    const sampleText = `COMPREHENSIVE HEMATOLOGY & METABOLIC PANEL\nPatient ID: RN-2026-00142 | Study: Complete Blood Count\nWBC: 6.8 10^3/uL (Normal)\nHemoglobin: 14.2 g/dL (Normal)\nPlatelets: 245 10^3/uL (Normal)\nSerum Creatinine: 0.95 mg/dL (Normal)\nBUN: 14.0 mg/dL (Normal)`;
+                    const blob = new Blob([sampleText], { type: 'text/plain' });
+                    const file = new File([blob], 'normal_cbc_panel.txt', { type: 'text/plain' });
+                    await handleFileUpload(file, 'blood');
+                  }}
+                  style={{
+                    flex: 1,
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'var(--text-primary)',
+                    fontSize: '12px',
+                    fontWeight: 650,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <CheckCircle2 size={14} style={{ color: '#10b981' }} />
+                  <span>Load Normal Blood Panel</span>
+                </button>
+              </>
             )}
           </div>
         </div>

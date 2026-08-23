@@ -70,25 +70,36 @@ export interface CVAnalysisResult {
   gatekeeper_passed?: boolean;
   gatekeeper_confidence?: number;
   diagnostic_confidence?: number;
-  modality: 'chest_xray' | 'limb_fracture' | 'mri';
+  modality: 'chest_xray' | 'limb_fracture' | 'mri' | 'breast_cancer';
   prediction: string;
   confidence: number;
-  probabilities: Record<string, number>;
-  original_image: string;
-  gradcam_overlay: string;
+  target_class?: string;
+  probabilities?: Record<string, number>;
+  original_image?: string;
+  gradcam_overlay?: string;
+  original_image_base64?: string;
+  gradcam_base64?: string;
   focal_metrics?: FocalMetrics;
   infographic?: CVInfographicData;
-  guidance: GuidanceData;
-  disclaimer: string;
+  guidance?: GuidanceData;
+  disclaimer?: string;
   patient_name?: string;
   patient_id?: string;
+  study_date?: string;
+  birads_score?: number;
+  is_alert?: boolean;
+  emergency_urgency_score?: number;
+  doctor_summary?: string;
+  patient_summary?: string;
+  gatekeeper?: any;
 }
 
 export interface ReportParameterItem {
   name: string;
   value: string;
   unit: string;
-  reference: string;
+  reference?: string;
+  reference_range?: string;
   status: string;
 }
 
@@ -107,25 +118,37 @@ export interface TriageLevelData {
 }
 
 export interface LLMExplanationContent {
-  title: string;
+  title?: string;
   info_stats?: InfoStatsData;
   triage_level?: TriageLevelData;
-  plain_language_summary: string;
+  plain_language_summary?: string;
+  clinical_synthesis?: string;
+  parameters?: ReportParameterItem[];
+  longitudinal_trajectory?: string;
+  red_flag_alert?: string | null;
+  next_steps?: string[];
   short_term_problems?: string[];
   long_term_problems?: string[];
   what_to_do_now?: string[];
   precautions_and_prevention?: string[];
   key_findings?: string[];
-  hedging_statement: string;
-  recommended_clinical_questions: string[];
+  hedging_statement?: string;
+  recommended_clinical_questions?: string[];
 }
 
 export interface LLMAnalysisResult {
   modality: string;
   explanation: LLMExplanationContent;
-  source: 'GEMINI_LLM' | 'TEMPLATE_FALLBACK';
-  filename: string;
+  source?: 'GEMINI_LLM' | 'TEMPLATE_FALLBACK';
+  filename?: string;
   raw_text?: string;
+  patient_name?: string;
+  patient_id?: string;
+  study_date?: string;
+  is_alert?: boolean;
+  emergency_urgency_score?: number;
+  doctor_summary?: string;
+  patient_summary?: string;
 }
 
 export type AnyAnalysisResult = CVAnalysisResult | LLMAnalysisResult;

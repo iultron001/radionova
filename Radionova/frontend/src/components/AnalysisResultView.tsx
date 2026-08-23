@@ -187,9 +187,28 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     aiRecommendation = llmData?.explanation.plain_language_summary || 'Review findings with clinical physician.';
   }
 
-  // Radiograph images
-  const originalImg = cvData?.original_image || (modality === 'chest_xray' ? '/samples/chest_pneumonia_1.jpeg' : '/samples/limb_fracture_1.jpg');
-  const overlayImg = cvData?.gradcam_overlay || originalImg;
+  // Radiograph images with robust base64 and relative sample path fallbacks
+  const fallbackSample = modality === 'chest_xray' 
+    ? './samples/chest_pneumonia_1.jpeg' 
+    : modality === 'breast_cancer' 
+    ? './samples/breast_malignant_1.png' 
+    : modality === 'mri' 
+    ? './samples/mri_tumor_1.jpg' 
+    : './samples/limb_fracture_1.jpg';
+
+  const rawOriginal = cvData?.original_image || cvData?.original_image_base64 || '';
+  const originalImg = rawOriginal && (rawOriginal.startsWith('data:') || rawOriginal.startsWith('.') || rawOriginal.startsWith('http')) 
+    ? rawOriginal 
+    : rawOriginal 
+    ? (rawOriginal.startsWith('/') ? `.${rawOriginal}` : `data:image/jpeg;base64,${rawOriginal}`) 
+    : fallbackSample;
+
+  const rawOverlay = cvData?.gradcam_overlay || cvData?.gradcam_base64 || '';
+  const overlayImg = rawOverlay && (rawOverlay.startsWith('data:') || rawOverlay.startsWith('.') || rawOverlay.startsWith('http')) 
+    ? rawOverlay 
+    : rawOverlay 
+    ? (rawOverlay.startsWith('/') ? `.${rawOverlay}` : `data:image/jpeg;base64,${rawOverlay}`) 
+    : originalImg;
 
   const getDisplayImage = () => {
     if (showOriginalOnly || activeViewMode === 'original') return originalImg;
