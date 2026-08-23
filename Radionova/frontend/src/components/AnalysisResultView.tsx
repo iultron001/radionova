@@ -59,12 +59,14 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
   let protocolDesc = 'Maintain standard clinical monitoring and oxygen saturation checks.';
   let aiRecommendation = 'Correlate findings with auscultation and pulse oximetry. No acute consolidative process detected.';
 
+  const predUpper = String(predRaw).toUpperCase();
+
   if (modality === 'chest_xray') {
     ModalityIcon = Activity;
     modalityTitle = 'Chest Radiography (X-Ray)';
     anatomicalRegion = 'Thoracic Cavity / Bilateral Lungs';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Chest Radiography)';
-    if (predRaw === 'PNEUMONIA') {
+    if (predUpper.includes('PNEUMONIA')) {
       isPositive = true;
       predictionTitle = 'Pneumonia Consolidation Detected';
       locationDetail = 'Right Mid / Lower Zone (Perihilar Infiltrate)';
@@ -92,7 +94,7 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     modalityTitle = 'Limb Radiograph (X-Ray)';
     anatomicalRegion = 'Wrist / Forearm Extremity';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Limb Fracture)';
-    if (predRaw === 'FRACTURED') {
+    if (predUpper.includes('FRACTUR')) {
       isPositive = true;
       predictionTitle = 'Cortical Bone Fracture Detected';
       locationDetail = 'Distal Radius / Metaphyseal Cortical Edge';
@@ -120,7 +122,7 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     modalityTitle = 'Brain MRI Neuroimaging';
     anatomicalRegion = 'Intracranial Parenchyma';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Brain MRI)';
-    if (predRaw === 'TUMOR') {
+    if (predUpper.includes('TUMOR') || predUpper.includes('LESION') || predUpper.includes('GLIOMA')) {
       isPositive = true;
       predictionTitle = 'Intracranial Lesion / Tumor Detected';
       locationDetail = 'Frontal-Parietal White-Gray Junction';
@@ -148,7 +150,7 @@ export const AnalysisResultView: React.FC<AnalysisResultViewProps> = ({
     modalityTitle = 'Breast Cancer Screening';
     anatomicalRegion = 'Mammographic Tissue / Breast Parenchyma';
     modelName = cvData?.model_name || 'PyTorch DenseNet-121 (Mammography)';
-    if (predRaw === 'MALIGNANT') {
+    if (predUpper.includes('MALIGNANT') || predUpper.includes('CANCER')) {
       isPositive = true;
       predictionTitle = 'Malignant / Suspicious Mass Detected';
       locationDetail = 'Upper Outer Quadrant / Spiculated Foci';
